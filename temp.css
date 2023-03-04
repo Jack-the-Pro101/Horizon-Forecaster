@@ -1,0 +1,51 @@
+:root {
+  --clrNeutral100: hsl(210, 10%, 10%);
+  --clrNeutral100: hsl(210, 5%, 20%);
+  --clrNeutral100: hsl(210, 3%, 30%);
+  --clrNeutral100: hsl(210, 2%, 40%);
+  --clrNeutral100: hsl(210, 2%, 55%);
+  --clrNeutral100: hsl(210, 1%, 65%);
+  --clrNeutral100: hsl(0, 0%, 75%);
+  --clrNeutral100: hsl(0, 0%, 90%);
+  --clrNeutral100: hsl(0, 0%, 100%);
+
+  --clrPrimary100: hsl(214, 100%, 10%);
+  --clrPrimary100: hsl(214, 100%, 20%);
+  --clrPrimary100: hsl(214, 100%, 30%);
+  --clrPrimary100: hsl(214, 100%, 40%);
+  --clrPrimary100: hsl(214, 100%, 50%);
+  --clrPrimary100: hsl(214, 100%, 60%);
+  --clrPrimary100: hsl(214, 100%, 70%);
+  --clrPrimary100: hsl(214, 100%, 80%);
+  --clrPrimary100: hsl(214, 100%, 90%);
+
+  --clrAccent100: hsl(42, 5%, 10%);
+  --clrAccent100: hsl(42, 25%, 20%);
+  --clrAccent100: hsl(42, 75%, 30%);
+  --clrAccent100: hsl(42, 100%, 40%);
+  --clrAccent100: hsl(42, 100%, 50%);
+  --clrAccent100: hsl(42, 100%, 60%);
+  --clrAccent100: hsl(42, 100%, 70%);
+  --clrAccent100: hsl(42, 100%, 80%);
+  --clrAccent100: hsl(42, 100%, 90%);
+
+  --clrDanger100: hsl(10, 85%, 10%);
+  --clrDanger100: hsl(10, 88%, 20%);
+  --clrDanger100: hsl(10, 95%, 30%);
+  --clrDanger100: hsl(10, 100%, 40%);
+  --clrDanger100: hsl(10, 100%, 50%);
+  --clrDanger100: hsl(10, 100%, 60%);
+  --clrDanger100: hsl(10, 100%, 70%);
+  --clrDanger100: hsl(10, 100%, 80%);
+  --clrDanger100: hsl(10, 100%, 90%);
+
+  --clrOk100: hsl(131, 87%, 10%);
+  --clrOk100: hsl(131, 87%, 20%);
+  --clrOk100: hsl(131, 87%, 30%);
+  --clrOk100: hsl(131, 87%, 40%);
+  --clrOk100: hsl(131, 87%, 50%);
+  --clrOk100: hsl(131, 87%, 60%);
+  --clrOk100: hsl(131, 87%, 70%);
+  --clrOk100: hsl(131, 87%, 80%);
+  --clrOk100: hsl(131, 87%, 90%);
+}
