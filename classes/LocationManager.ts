@@ -1,6 +1,7 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Platform} from 'react-native';
 import Geolocation from 'react-native-geolocation-service';
-
+import {v4 as uuid} from 'uuid';
 import {
   request,
   check,
@@ -20,12 +21,66 @@ const permissionMap: Partial<{
   ios: [PERMISSIONS.IOS.LOCATION_WHEN_IN_USE, PERMISSIONS.IOS.LOCATION_ALWAYS],
 };
 
+interface LocationProfile {
+  name: string;
+  longitude: number;
+  latitude: number;
+}
+
+interface LocationProfiles {
+  [key: string]: LocationProfile;
+}
+
+type ActiveLocationProfile = string | null;
+
+const storeKeyName = 'location_profiles';
+const storeActiveName = 'location_active';
+
 class LocationManager {
-  activeLocation = null;
+  selectedLocationId: string | null = null;
+  selectedLocation: LocationProfile | null = null;
   permissionsGranted: null | boolean = null;
 
+  private events: {
+    [key: string]: any[];
+  } = {
+    selectedLocation: [],
+  };
+
   async init() {
-    await this.checkPermission();
+    const granted = await this.checkPermission();
+
+    if (!granted) await this.requestPermission();
+
+    const activeLocation = (await AsyncStorage.getItem(
+      storeActiveName,
+    )) as ActiveLocationProfile;
+
+    if (activeLocation == null && this.permissionsGranted) {
+      const location = await this.getCurrentLocation();
+
+      this.selectedLocation = {
+        name: 'Current location',
+        latitude: location!.latitude,
+        longitude: location!.longitude,
+      };
+
+      this.emitEvent('selectedLocation', this.selectedLocation);
+    } else if (activeLocation != null && this.permissionsGranted) {
+      this.selectedLocation = JSON.parse(activeLocation);
+
+      this.emitEvent('selectedLocation', this.selectedLocation);
+    }
+  }
+
+  addEventStateUpdater(type: any, setFunction: any) {
+    this.events[type].push(setFunction);
+  }
+
+  emitEvent(type: any, data: any) {
+    for (let i = 0, n = this.events[type].length; i < n; ++i) {
+      this.events[type][i](data);
+    }
   }
 
   async requestPermission(): Promise<boolean> {
@@ -88,12 +143,39 @@ class LocationManager {
     return null;
   }
 
-  async saveLocation() {}
+  async getAllLocations() {
+    const profiles = JSON.parse(
+      (await AsyncStorage.getItem(storeKeyName)) || '[]',
+    ) as LocationProfiles;
 
-  async deleteLocation() {}
+    return profiles;
+  }
+
+  async getLocation(id: string): Promise<LocationProfile | null> {
+    const profiles = await this.getAllLocations();
+
+    return profiles[id];
+  }
+
+  async saveLocation(location: LocationProfile) {
+    const profiles = await this.getAllLocations();
+
+    profiles[uuid()] = location;
+
+    await AsyncStorage.setItem(storeKeyName, JSON.stringify(profiles));
+  }
+
+  async deleteLocation(id: string) {
+    const profiles = await this.getAllLocations();
+
+    delete profiles[id];
+
+    await AsyncStorage.setItem(storeKeyName, JSON.stringify(profiles));
+  }
 }
 
 const locationManager = new LocationManager();
-locationManager.init();
+
+(async () => locationManager.init())();
 
 export default locationManager;

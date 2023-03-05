@@ -1,5 +1,6 @@
 export type RootStackParamList = {
   Home: undefined;
+  Locations: undefined;
 };
 
 export interface BaseCoordinates {

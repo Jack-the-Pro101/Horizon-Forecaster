@@ -13,6 +13,7 @@ import {NavigationContainer, DefaultTheme} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 
 import HomeScreen from './components/home/Index';
+import LocationsScreen from './components/locations/Index';
 import {NavigationDarkTheme} from './Global.styles';
 import {RootStackParamList} from './types';
 
@@ -31,6 +32,11 @@ const App = () => {
         initialRouteName="Home"
         screenOptions={{headerShown: false}}>
         <Stack.Screen name="Home" component={HomeScreen} />
+        <Stack.Screen
+          name="Locations"
+          component={LocationsScreen}
+          options={{animation: 'slide_from_right'}}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );

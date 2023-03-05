@@ -1,5 +1,5 @@
 import {ForecastedData, RawWeatherData} from '../types';
-import {binarySearch} from '../utils';
+import {binarySearchRound} from '../utils';
 import DataFetcher from './DataFetcher';
 import LocationManager from './LocationManager';
 
@@ -20,6 +20,18 @@ const totalWeight = Object.keys(weightMap).reduce(
 
 interface WeightFunction {}
 
+function numberPercentProximity(
+  inputNumber: number,
+  optimalNumber: number,
+): number {
+  return Math.max(
+    inputNumber < optimalNumber
+      ? inputNumber / optimalNumber
+      : inputNumber / optimalNumber - (inputNumber / optimalNumber - 1) * 2,
+    0,
+  );
+}
+
 const weightFunctions /*: WeightFunction[] */ = [
   {
     for: 'cloudcover',
@@ -29,20 +41,8 @@ const weightFunctions /*: WeightFunction[] */ = [
       times: number[],
       targetTime: number,
     ): number {
-      const targetIndex = binarySearch(times, targetTime, (a, b) => a - b);
-
-      // if target index les than 0
-      //   targetindex = -(targetindex + 1)
-
-      //   low = times[targetindex - 1] but if target index 0 low is null
-      //   high = times[targetindex] but if target index is times.length then high is null
-
-      //   if low is null low = times[targetindex]
-      //   if high is null high = low
-
-      //   figure out is targettime closer to low or high then set index to it
-
-      console.log(times[targetIndex], targetIndex);
+      // Find what time is closest to target time
+      const targetIndex = binarySearchRound(times, targetTime, (a, b) => a - b);
 
       const quality = 0.8;
 
@@ -88,8 +88,6 @@ class Forecaster {
       0,
     );
 
-    console.log(totalPossibleWeight);
-
     let accumWeight = 0;
 
     for (const weightFunction of weightFunctions) {
@@ -120,7 +118,7 @@ class Forecaster {
       location: location,
     });
 
-    console.log(location, data);
+    // console.log(location, data);
 
     return data;
   }

@@ -1,4 +1,5 @@
 import {WeatherDataOptions, RawWeatherData} from '../types';
+import locationManager from './LocationManager';
 
 export const API_SOURCES = [
   {
@@ -18,6 +19,10 @@ export const API_SOURCES = [
 ];
 
 class DataFetcher {
+  async refresh() {
+    // await this.getWeatherData(locationManager.selectedLocation.coordinates);
+  }
+
   async getWeatherData(
     options: WeatherDataOptions,
   ): Promise<RawWeatherData | null> {
@@ -28,7 +33,12 @@ class DataFetcher {
     );
 
     if (request.ok) {
-      return await request.json();
+      const data = (await request.json()) as RawWeatherData;
+
+      // this.sunrise = data.daily.sunrise[1];
+      // this.sunset = data.daily.sunset[1];
+
+      return data;
     } else {
       return null;
     }
