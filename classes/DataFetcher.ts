@@ -1,4 +1,4 @@
-import {WeatherDataOptions, RawWeatherData} from '../types';
+import {WeatherDataOptions, RawWeatherData, RawGeocodeData} from '../types';
 import locationManager from './LocationManager';
 
 export const API_SOURCES = [
@@ -19,8 +19,20 @@ export const API_SOURCES = [
 ];
 
 class DataFetcher {
-  async refresh() {
-    // await this.getWeatherData(locationManager.selectedLocation.coordinates);
+  async getGeocode(query: string): Promise<RawGeocodeData | null> {
+    const request = await fetch(
+      `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(
+        query,
+      )}`,
+    );
+
+    if (request.ok) {
+      const data = (await request.json()) as RawGeocodeData;
+
+      return data.results != null ? data : null;
+    } else {
+      return null;
+    }
   }
 
   async getWeatherData(
@@ -34,9 +46,6 @@ class DataFetcher {
 
     if (request.ok) {
       const data = (await request.json()) as RawWeatherData;
-
-      // this.sunrise = data.daily.sunrise[1];
-      // this.sunset = data.daily.sunset[1];
 
       return data;
     } else {

@@ -1,7 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Platform} from 'react-native';
 import Geolocation from 'react-native-geolocation-service';
-import {v4 as uuid} from 'uuid';
+import {uuidv4 as uuid} from '../utils';
+
 import {
   request,
   check,
@@ -21,13 +22,16 @@ const permissionMap: Partial<{
   ios: [PERMISSIONS.IOS.LOCATION_WHEN_IN_USE, PERMISSIONS.IOS.LOCATION_ALWAYS],
 };
 
-interface LocationProfile {
+export interface LocationProfile {
   name: string;
+  administration: string;
+  country: string;
+  gps?: boolean;
   longitude: number;
   latitude: number;
 }
 
-interface LocationProfiles {
+export interface LocationProfiles {
   [key: string]: LocationProfile;
 }
 
@@ -45,6 +49,7 @@ class LocationManager {
     [key: string]: any[];
   } = {
     selectedLocation: [],
+    locations: [],
   };
 
   async init() {
@@ -61,10 +66,12 @@ class LocationManager {
 
       this.selectedLocation = {
         name: 'Current location',
+        administration: '',
+        country: '',
+        gps: true,
         latitude: location!.latitude,
         longitude: location!.longitude,
       };
-
       this.emitEvent('selectedLocation', this.selectedLocation);
     } else if (activeLocation != null && this.permissionsGranted) {
       this.selectedLocation = JSON.parse(activeLocation);
@@ -145,7 +152,7 @@ class LocationManager {
 
   async getAllLocations() {
     const profiles = JSON.parse(
-      (await AsyncStorage.getItem(storeKeyName)) || '[]',
+      (await AsyncStorage.getItem(storeKeyName)) || '{}',
     ) as LocationProfiles;
 
     return profiles;
@@ -160,9 +167,13 @@ class LocationManager {
   async saveLocation(location: LocationProfile) {
     const profiles = await this.getAllLocations();
 
+    console.log(profiles, location);
+
     profiles[uuid()] = location;
 
     await AsyncStorage.setItem(storeKeyName, JSON.stringify(profiles));
+
+    this.emitEvent('locations', profiles);
   }
 
   async deleteLocation(id: string) {
@@ -171,11 +182,13 @@ class LocationManager {
     delete profiles[id];
 
     await AsyncStorage.setItem(storeKeyName, JSON.stringify(profiles));
+
+    this.emitEvent('locations', profiles);
   }
 }
 
 const locationManager = new LocationManager();
 
-(async () => locationManager.init())();
+(async () => await locationManager.init())();
 
 export default locationManager;

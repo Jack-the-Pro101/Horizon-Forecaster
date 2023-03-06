@@ -1,4 +1,4 @@
-import {useEffect, useState} from 'react';
+import {useEffect, useState, useContext} from 'react';
 
 import {
   SafeAreaView,
@@ -13,8 +13,7 @@ import {
 
 import Text from '../global/CustomText';
 
-import globalStyles from '../../Global.styles';
-import {stylesheet} from '../../Global.styles';
+import globalStyles, {stylesheet} from '../../Global.styles';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 
 import AntDesignIcons from 'react-native-vector-icons/AntDesign';
@@ -24,16 +23,16 @@ import {RawWeatherData, RootStackParamList} from '../../types';
 import Forecaster from '../../classes/Forecaster';
 import DataFetcher from '../../classes/DataFetcher';
 import locationManager from '../../classes/LocationManager';
+import {LocationContext} from '../../App';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
-export default function Home({navigation}: Props) {
+export default function Home({navigation, route}: Props) {
+  const {location, setLocation} = useContext(LocationContext);
+
   const isDarkMode = useColorScheme() === 'dark';
 
-  const [location, setLocation] = useState(locationManager.selectedLocation);
   const [weatherData, setWeatherData] = useState<RawWeatherData | null>(null);
-
-  locationManager.addEventStateUpdater('selectedLocation', setLocation);
 
   useEffect(() => {
     (async () => {
@@ -60,8 +59,8 @@ export default function Home({navigation}: Props) {
     <View style={stylesheet.body}>
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
 
-      <View style={styles.navbar}>
-        <View style={styles.navbar__content}>
+      <View style={stylesheet.navbar}>
+        <View style={stylesheet.navbar__content}>
           <TouchableOpacity activeOpacity={0.7}>
             <AntDesignIcons name="bars" size={24} />
           </TouchableOpacity>
@@ -74,11 +73,11 @@ export default function Home({navigation}: Props) {
             </Text>
           </TouchableOpacity>
         </View>
-        <View style={styles.navbar__alerts}>
+        {/*<View style={styles.navbar__alerts}>
           <TouchableOpacity style={styles.navbar__alert} activeOpacity={0.5}>
             <Text>ALERT: Possible Extreme Weather</Text>
           </TouchableOpacity>
-        </View>
+        </View> */}
       </View>
 
       <ScrollView>
@@ -127,24 +126,6 @@ export default function Home({navigation}: Props) {
 }
 
 const styles = StyleSheet.create({
-  navbar: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    zIndex: 1,
-    backgroundColor: globalStyles.clrNeutral200,
-  },
-
-  navbar__content: {
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 8,
-    paddingVertical: 6,
-  },
-
   navbar__alerts: {
     display: 'flex',
     backgroundColor: globalStyles.clrDanger400,

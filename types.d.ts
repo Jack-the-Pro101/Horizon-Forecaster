@@ -1,6 +1,15 @@
+import {LocationProfile} from './classes/LocationManager';
+import {NavigatorScreenParams} from '@react-navigation/native';
+
 export type RootStackParamList = {
   Home: undefined;
   Locations: undefined;
+};
+
+export type LocationStackParamList = {
+  Asdf: NavigatorScreenParams<RootStackParamList>;
+  Index: CoreGeocodeLocation | undefined;
+  Search: undefined;
 };
 
 export interface BaseCoordinates {
@@ -77,3 +86,49 @@ export interface ForecastedData {
     sunset: Date;
   };
 }
+
+export interface RawGeocodeLocation {
+  id: number;
+  name: string;
+  latitude: number;
+  longtitude: number;
+  elevation: number;
+  feature_code: string;
+  country_code: string;
+  admin1_id: number;
+  admin2_id: number;
+  admin3_id: number;
+  admin4_id: number;
+  timezone: string;
+  population: number;
+  postcodes: string[];
+  country_id: number;
+  country: string;
+  admin1: string;
+  admin2?: string;
+  admin3?: string;
+  admin4?: string;
+}
+
+export interface RawGeocodeData {
+  generationtime_ms: number;
+  results?: RawGeocodeLocation[];
+}
+
+export interface CoreGeocodeLocation
+  extends Omit<
+    RawGeocodeLocation,
+    | 'feature_code'
+    | 'admin2'
+    | 'admin3'
+    | 'admin4'
+    | 'country_id'
+    | 'country_code'
+    | 'population'
+    | 'elevation'
+    | 'admin1_id'
+    | 'admin2_id'
+    | 'admin3_id'
+    | 'admin4_id'
+    | 'postcodes'
+  > {}

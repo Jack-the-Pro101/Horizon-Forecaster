@@ -115,7 +115,11 @@ class Forecaster {
     if (location == null) return; // TODO: handle properly
 
     const data = await DataFetcher.getWeatherData({
-      location: location,
+      // location: location,
+      location: {
+        latitude: 43.23,
+        longitude: -79.9,
+      },
     });
 
     // console.log(location, data);

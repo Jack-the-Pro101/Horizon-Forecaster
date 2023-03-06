@@ -246,7 +246,7 @@ export const NavigationDarkTheme = {
     primary: styles.clrPrimary500,
     background: styles.clrNeutral100,
     // card: colors.clrNeutral900,
-    // text: colors.clrNeutral900,
+    text: colors.clrNeutral900,
     // border: 'rgb(216, 216, 216)',
     // notification: 'rgb(255, 59, 48)',
   },
@@ -254,9 +254,28 @@ export const NavigationDarkTheme = {
 
 export const stylesheet = StyleSheet.create({
   body: {
-    padding: 4,
+    padding: 6,
     paddingTop: StatusBar.currentHeight,
     flex: 1,
+  },
+
+  navbar: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 1,
+    backgroundColor: styles.clrNeutral200,
+    elevation: 5,
+  },
+
+  navbar__content: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 8,
+    paddingVertical: 6,
   },
 });
 
