@@ -64,16 +64,7 @@ class LocationManager {
     )) as ActiveLocationProfile;
 
     if (activeLocation == null && this.permissionsGranted) {
-      const location = await this.getCurrentLocation();
-
-      this.selectedLocation = {
-        name: 'Current location',
-        administration: '',
-        country: '',
-        gps: true,
-        latitude: location!.latitude,
-        longitude: location!.longitude,
-      };
+      this.setActiveLocation(null);
 
       this.emitEvent('selectedLocation', this.selectedLocation);
     } else if (activeLocation != null && this.permissionsGranted) {

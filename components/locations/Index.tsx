@@ -44,10 +44,12 @@ interface RenderedLocationProfile extends LocationProfile {
 }
 
 export default function Home({navigation, route}: Props) {
-  const {location, setLocation} = useContext(LocationContext);
-  const [locations, setLocations] = useState<RenderedLocationProfile[]>();
+  const {location} = useContext(LocationContext);
+  const [locations, setLocations] = useState<RenderedLocationProfile[]>([]);
 
-  const [gpsEnabled, setGpsEnabled] = useState(false);
+  const [gpsEnabled, setGpsEnabled] = useState(
+    locationManager.selectedLocation?.gps || false,
+  );
   const toggleGpsSwitch = () => setGpsEnabled(previousState => !previousState);
 
   locationManager.addEventStateUpdater(
@@ -71,15 +73,13 @@ export default function Home({navigation, route}: Props) {
   }, []);
 
   useEffect(() => {
-    locationManager.setActiveLocation(null);
+    locationManager.setActiveLocation(gpsEnabled ? null : locations[0]);
   }, [gpsEnabled]);
 
   const data = route.params;
 
   useMemo(() => {
     if (data == null) return;
-
-    console.log(data);
 
     locationManager.saveLocation({
       name: data.name,
@@ -92,6 +92,7 @@ export default function Home({navigation, route}: Props) {
 
   function changeActiveLocation(data: LocationProfile) {
     locationManager.setActiveLocation(data);
+    if (data != null) setGpsEnabled(false);
   }
 
   function renderLocation(data: LocationProfile) {
@@ -206,6 +207,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 6,
     backgroundColor: globalStyles.clrNeutral200,
+    marginBottom: 6,
   },
 
   location__heading: {

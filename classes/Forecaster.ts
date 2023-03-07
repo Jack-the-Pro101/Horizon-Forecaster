@@ -118,8 +118,8 @@ class Forecaster {
     const data = await DataFetcher.getWeatherData({
       // location: location,
       location: {
-        latitude: 43.26,
-        longitude: -79.87,
+        latitude: 43.25,
+        longitude: -79.83,
       },
     });
 

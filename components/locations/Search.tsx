@@ -91,7 +91,8 @@ export default function Search({navigation}: Props) {
           autoFocus
           ref={searchRef}
           cursorColor={globalStyles.clrPrimary500}
-          onChangeText={text => setSearchQuery(text)}
+          onChangeText={text => setSearchQuery(text.trim())}
+          value={searchQuery}
           onSubmitEditing={() => search()}
         />
 
