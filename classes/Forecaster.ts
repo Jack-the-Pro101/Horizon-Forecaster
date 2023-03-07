@@ -1,6 +1,7 @@
 import {ForecastedData, RawWeatherData} from '../types';
 import {binarySearchRound} from '../utils';
 import DataFetcher from './DataFetcher';
+import locationManager from './LocationManager';
 import LocationManager from './LocationManager';
 
 const weightMap: {
@@ -110,15 +111,15 @@ class Forecaster {
   }
 
   async getForecast() {
-    const location = await LocationManager.getCurrentLocation();
+    const location = locationManager.selectedLocation;
 
     if (location == null) return; // TODO: handle properly
 
     const data = await DataFetcher.getWeatherData({
       // location: location,
       location: {
-        latitude: 43.23,
-        longitude: -79.9,
+        latitude: 43.26,
+        longitude: -79.87,
       },
     });
 

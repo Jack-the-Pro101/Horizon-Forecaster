@@ -40,13 +40,15 @@ type ActiveLocationProfile = string | null;
 const storeKeyName = 'location_profiles';
 const storeActiveName = 'location_active';
 
+type EventType = 'selectedLocation' | 'locations';
+
 class LocationManager {
   selectedLocationId: string | null = null;
   selectedLocation: LocationProfile | null = null;
   permissionsGranted: null | boolean = null;
 
   private events: {
-    [key: string]: any[];
+    [key in EventType]: Function[];
   } = {
     selectedLocation: [],
     locations: [],
@@ -72,6 +74,7 @@ class LocationManager {
         latitude: location!.latitude,
         longitude: location!.longitude,
       };
+
       this.emitEvent('selectedLocation', this.selectedLocation);
     } else if (activeLocation != null && this.permissionsGranted) {
       this.selectedLocation = JSON.parse(activeLocation);
@@ -80,11 +83,15 @@ class LocationManager {
     }
   }
 
-  addEventStateUpdater(type: any, setFunction: any) {
+  addEventStateUpdater(type: keyof typeof this.events, setFunction: any) {
     this.events[type].push(setFunction);
   }
 
-  emitEvent(type: any, data: any) {
+  removeEventStateUpdater(type: keyof typeof this.events, setFunction: any) {
+    this.events[type] = this.events[type].filter(func => func === setFunction);
+  }
+
+  emitEvent(type: keyof typeof this.events, data: any) {
     for (let i = 0, n = this.events[type].length; i < n; ++i) {
       this.events[type][i](data);
     }
@@ -97,7 +104,7 @@ class LocationManager {
 
     if (osPermission == null) return false;
 
-    const result = await request(osPermission[0]);
+    const result = await request(osPermission[0]); // BUG: THIS PROMISE PREVENTS FUNCTION FROM RESOLVING! INIT APP LOAD FAILS! FIND FIX.
 
     if (result === 'granted') {
       this.permissionsGranted = true;
@@ -162,6 +169,27 @@ class LocationManager {
     const profiles = await this.getAllLocations();
 
     return profiles[id];
+  }
+
+  async setActiveLocation(location: LocationProfile | null) {
+    if (location != null) {
+      this.selectedLocation = location;
+      await AsyncStorage.setItem(storeActiveName, JSON.stringify(location));
+    } else {
+      const location = await this.getCurrentLocation();
+
+      this.selectedLocation = {
+        name: 'Current location',
+        administration: '',
+        country: '',
+        gps: true,
+        latitude: location!.latitude,
+        longitude: location!.longitude,
+      };
+      await AsyncStorage.setItem(storeActiveName, JSON.stringify(null));
+    }
+
+    this.emitEvent('selectedLocation', this.selectedLocation);
   }
 
   async saveLocation(location: LocationProfile) {

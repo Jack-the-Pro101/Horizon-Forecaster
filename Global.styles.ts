@@ -277,6 +277,13 @@ export const stylesheet = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 6,
   },
+
+  flexBlock: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
 });
 
 export default styles;

@@ -7,6 +7,7 @@ import {
   TextInput,
   View,
   Dimensions,
+  Switch,
 } from 'react-native';
 
 import Text from '../global/CustomText';
@@ -46,6 +47,9 @@ export default function Home({navigation, route}: Props) {
   const {location, setLocation} = useContext(LocationContext);
   const [locations, setLocations] = useState<RenderedLocationProfile[]>();
 
+  const [gpsEnabled, setGpsEnabled] = useState(false);
+  const toggleGpsSwitch = () => setGpsEnabled(previousState => !previousState);
+
   locationManager.addEventStateUpdater(
     'locations',
     (profiles: LocationProfiles) =>
@@ -66,6 +70,10 @@ export default function Home({navigation, route}: Props) {
     })();
   }, []);
 
+  useEffect(() => {
+    locationManager.setActiveLocation(null);
+  }, [gpsEnabled]);
+
   const data = route.params;
 
   useMemo(() => {
@@ -82,9 +90,15 @@ export default function Home({navigation, route}: Props) {
     });
   }, [data?.id]);
 
+  function changeActiveLocation(data: LocationProfile) {
+    locationManager.setActiveLocation(data);
+  }
+
   function renderLocation(data: LocationProfile) {
     return (
-      <TouchableOpacity style={styles.location}>
+      <TouchableOpacity
+        style={styles.location}
+        onPress={() => changeActiveLocation(data)}>
         <Text style={styles.location__heading} fontWeight={600}>
           {data.name}
         </Text>
@@ -119,7 +133,21 @@ export default function Home({navigation, route}: Props) {
 
       <View style={{paddingTop: 28, flex: 1}}>
         <View style={{marginBottom: 24}}>
-          <Text style={styles.heading}>Current Location</Text>
+          <View style={stylesheet.flexBlock}>
+            <Text style={styles.heading}>Current Location</Text>
+            <View style={stylesheet.flexBlock}>
+              <Text>Use GPS</Text>
+              <Switch
+                trackColor={{
+                  true: globalStyles.clrPrimary300,
+                  false: globalStyles.clrPrimary200,
+                }}
+                thumbColor={globalStyles.clrPrimary500}
+                onValueChange={toggleGpsSwitch}
+                value={gpsEnabled}
+              />
+            </View>
+          </View>
           {location ? (
             <TouchableOpacity style={styles.location}>
               {location.gps ? (
@@ -133,9 +161,14 @@ export default function Home({navigation, route}: Props) {
                   </Text>
                 </>
               ) : (
-                <Text style={styles.location__heading} fontWeight={500}>
-                  {location.name}
-                </Text>
+                <>
+                  <Text style={styles.location__heading} fontWeight={500}>
+                    {location.name}
+                  </Text>
+                  <Text style={styles.location__subheading} fontWeight={500}>
+                    {location.administration}, {location.country}
+                  </Text>
+                </>
               )}
             </TouchableOpacity>
           ) : (

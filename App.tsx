@@ -53,7 +53,13 @@ const App = () => {
   // theme={isDark ? NavigationDarkTheme : DefaultTheme}
 
   const [location, setLocation] = useState(locationManager.selectedLocation);
-  locationManager.addEventStateUpdater('selectedLocation', setLocation);
+
+  useEffect(() => {
+    locationManager.addEventStateUpdater('selectedLocation', setLocation);
+
+    return () =>
+      locationManager.removeEventStateUpdater('selectedLocation', setLocation);
+  }, [setLocation]);
 
   return (
     <NavigationContainer

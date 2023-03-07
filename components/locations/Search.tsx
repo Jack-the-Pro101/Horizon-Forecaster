@@ -70,7 +70,7 @@ export default function Search({navigation}: Props) {
     return (
       <TouchableOpacity
         style={styles.result__item}
-        onPress={() => navigation.navigate('Index', {data})}>
+        onPress={() => navigation.navigate('Index', data)}>
         <Text style={styles.result__heading} fontWeight={600}>
           {data.name}
         </Text>
