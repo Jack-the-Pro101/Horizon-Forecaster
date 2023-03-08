@@ -41,7 +41,7 @@ type Props = CompositeScreenProps<
 >;
 
 export default function Home({navigation, route}: Props) {
-  const {location} = useContext(LocationContext);
+  const {location, setLocation} = useContext(LocationContext);
   const [locations, setLocations] = useState<RenderedLocationProfile[]>([]);
 
   const [editing, setEditing] = useState(false);
@@ -101,16 +101,16 @@ export default function Home({navigation, route}: Props) {
 
   function selectLocation(data: RenderedLocationProfile) {
     if (editing) {
+      setSelectedLocations(values => {
+        if (selectedLocations.includes(data.id)) {
+          return values.filter(value => value !== data.id);
+        } else {
+          return [...values, data.id];
+        }
+      });
+    } else {
       locationManager.setActiveLocation(data);
       if (data != null) setGpsEnabled(false);
-    }else {
-      setSelectedLocations((values) => {
-        if (selectedLocations.includes(data.id)) {
-          return values.filter((value) => value !== data.id)
-        }else {
-          return [...values, data.id]          
-        }
-      })
     }
   }
 
@@ -125,7 +125,22 @@ export default function Home({navigation, route}: Props) {
         onLongPress={() => setEditing(true)}>
         <View
           style={editing ? styles['location__contents--editing'] : undefined}>
-          <Ionicons name={selectedLocations.includes(data.id) ? 'ellipse-outline' : 'checkmark-circle'} size={18} style={editing ? styles['location__circle-icon'] : undefined}/>
+          <Ionicons
+            name={
+              selectedLocations.includes(data.id)
+                ? 'checkmark-circle'
+                : 'ellipse-outline'
+            }
+            size={24}
+            style={
+              editing
+                ? {
+                    ...styles['location__circle-icon'],
+                    ...styles['location__circle-icon--editing'],
+                  }
+                : styles['location__circle-icon']
+            }
+          />
           <Text style={styles.location__heading} fontWeight={600}>
             {data.name}
           </Text>
@@ -231,20 +246,25 @@ const styles = StyleSheet.create({
 
   location: {
     borderRadius: 8,
-    padding: 6,
+    padding: 8,
     backgroundColor: globalStyles.clrNeutral200,
     marginBottom: 6,
+    position: 'relative',
   },
 
   'location__contents--editing': {
-    transform: [{translateX: 32}],
-    position: "relative",
+    paddingLeft: 32,
   },
 
-  "location__circle-icon": {
+  'location__circle-icon': {
     position: 'absolute',
-    alignSelf: "center",
-    left: 6,
+    alignSelf: 'center',
+    left: 0,
+    display: 'none',
+  },
+
+  'location__circle-icon--editing': {
+    display: 'flex',
   },
 
   location__heading: {

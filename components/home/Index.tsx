@@ -28,7 +28,7 @@ import {LocationContext} from '../../App';
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
 export default function Home({navigation, route}: Props) {
-  const {location, setLocation} = useContext(LocationContext);
+  const {location} = useContext(LocationContext);
 
   const isDarkMode = useColorScheme() === 'dark';
 
