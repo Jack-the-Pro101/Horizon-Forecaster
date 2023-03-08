@@ -45,6 +45,7 @@ export default function Home({navigation, route}: Props) {
   const [locations, setLocations] = useState<RenderedLocationProfile[]>([]);
 
   const [editing, setEditing] = useState(false);
+  const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
 
   const [gpsEnabled, setGpsEnabled] = useState(
     locationManager.selectedLocation?.gps || false,
@@ -98,9 +99,19 @@ export default function Home({navigation, route}: Props) {
     });
   }, [data?.id]);
 
-  function changeActiveLocation(data: RenderedLocationProfile) {
-    locationManager.setActiveLocation(data);
-    if (data != null) setGpsEnabled(false);
+  function selectLocation(data: RenderedLocationProfile) {
+    if (editing) {
+      locationManager.setActiveLocation(data);
+      if (data != null) setGpsEnabled(false);
+    }else {
+      setSelectedLocations((values) => {
+        if (selectedLocations.includes(data.id)) {
+          return values.filter((value) => value !== data.id)
+        }else {
+          return [...values, data.id]          
+        }
+      })
+    }
   }
 
   function renderLocation(data: RenderedLocationProfile) {
@@ -110,10 +121,11 @@ export default function Home({navigation, route}: Props) {
       <TouchableOpacity
         style={styles.location}
         activeOpacity={0.9}
-        onPress={() => changeActiveLocation(data)}
+        onPress={() => selectLocation(data)}
         onLongPress={() => setEditing(true)}>
         <View
           style={editing ? styles['location__contents--editing'] : undefined}>
+          <Ionicons name={selectedLocations.includes(data.id) ? 'ellipse-outline' : 'checkmark-circle'} size={18} style={editing ? styles['location__circle-icon'] : undefined}/>
           <Text style={styles.location__heading} fontWeight={600}>
             {data.name}
           </Text>
@@ -226,6 +238,13 @@ const styles = StyleSheet.create({
 
   'location__contents--editing': {
     transform: [{translateX: 32}],
+    position: "relative",
+  },
+
+  "location__circle-icon": {
+    position: 'absolute',
+    alignSelf: "center",
+    left: 6,
   },
 
   location__heading: {
