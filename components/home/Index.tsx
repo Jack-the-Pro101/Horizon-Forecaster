@@ -56,7 +56,7 @@ export default function Home({navigation, route}: Props) {
   });
 
   return (
-    <View style={stylesheet.body}>
+    <>
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
 
       <View style={stylesheet.navbar}>
@@ -80,7 +80,7 @@ export default function Home({navigation, route}: Props) {
         </View> */}
       </View>
 
-      <ScrollView>
+      <ScrollView style={stylesheet.body}>
         <View style={{...styles.section, ...styles.section__hero}}>
           <View style={styles.forecast}>
             <Text style={styles.forecast__text} fontWeight={600}>
@@ -121,7 +121,7 @@ export default function Home({navigation, route}: Props) {
           </Text>
         </View>
       </ScrollView>
-    </View>
+    </>
   );
 }
 

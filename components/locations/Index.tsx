@@ -29,6 +29,7 @@ import globalStyles, {stylesheet} from '../../Global.styles';
 import locationManager, {
   LocationProfile,
   LocationProfiles,
+  RenderedLocationProfile,
 } from '../../classes/LocationManager';
 
 import {useContext, useEffect, useState, useMemo} from 'react';
@@ -39,13 +40,11 @@ type Props = CompositeScreenProps<
   StackScreenProps<RootStackParamList>
 >;
 
-interface RenderedLocationProfile extends LocationProfile {
-  id: string;
-}
-
 export default function Home({navigation, route}: Props) {
   const {location} = useContext(LocationContext);
   const [locations, setLocations] = useState<RenderedLocationProfile[]>([]);
+
+  const [editing, setEditing] = useState(false);
 
   const [gpsEnabled, setGpsEnabled] = useState(
     locationManager.selectedLocation?.gps || false,
@@ -69,7 +68,9 @@ export default function Home({navigation, route}: Props) {
       setLocations(convertProfileToRendered(profiles)),
   );
 
-  function convertProfileToRendered(profiles: LocationProfiles) {
+  function convertProfileToRendered(
+    profiles: LocationProfiles,
+  ): RenderedLocationProfile[] {
     return Object.keys(profiles).map(profile => {
       return {...profiles[profile], id: profile};
     });
@@ -97,28 +98,35 @@ export default function Home({navigation, route}: Props) {
     });
   }, [data?.id]);
 
-  function changeActiveLocation(data: LocationProfile) {
+  function changeActiveLocation(data: RenderedLocationProfile) {
     locationManager.setActiveLocation(data);
     if (data != null) setGpsEnabled(false);
   }
 
-  function renderLocation(data: LocationProfile) {
+  function renderLocation(data: RenderedLocationProfile) {
+    if (data.id === locationManager.selectedLocationId) return null;
+
     return (
       <TouchableOpacity
         style={styles.location}
-        onPress={() => changeActiveLocation(data)}>
-        <Text style={styles.location__heading} fontWeight={600}>
-          {data.name}
-        </Text>
-        <Text style={styles.location__subheading} fontWeight={500}>
-          {data.administration}, {data.country}
-        </Text>
+        activeOpacity={0.9}
+        onPress={() => changeActiveLocation(data)}
+        onLongPress={() => setEditing(true)}>
+        <View
+          style={editing ? styles['location__contents--editing'] : undefined}>
+          <Text style={styles.location__heading} fontWeight={600}>
+            {data.name}
+          </Text>
+          <Text style={styles.location__subheading} fontWeight={500}>
+            {data.administration}, {data.country}
+          </Text>
+        </View>
       </TouchableOpacity>
     );
   }
 
   return (
-    <View style={stylesheet.body}>
+    <>
       <View style={stylesheet.navbar}>
         <View style={stylesheet.navbar__content}>
           <View
@@ -138,8 +146,7 @@ export default function Home({navigation, route}: Props) {
           </TouchableOpacity>
         </View>
       </View>
-
-      <View style={{paddingTop: 28, flex: 1}}>
+      <View style={stylesheet.body}>
         <View style={{marginBottom: 24}}>
           <View style={stylesheet.flexBlock}>
             <Text style={styles.heading}>Current Location</Text>
@@ -157,7 +164,7 @@ export default function Home({navigation, route}: Props) {
             </View>
           </View>
           {location ? (
-            <TouchableOpacity style={styles.location}>
+            <View style={styles.location}>
               {location.gps ? (
                 <>
                   <Text style={styles.location__heading} fontWeight={600}>
@@ -178,7 +185,7 @@ export default function Home({navigation, route}: Props) {
                   </Text>
                 </>
               )}
-            </TouchableOpacity>
+            </View>
           ) : (
             <Text style={{textAlign: 'center', margin: 16}}>
               Location unavailable.
@@ -199,7 +206,7 @@ export default function Home({navigation, route}: Props) {
           keyExtractor={item => item.id}
         />
       </View>
-    </View>
+    </>
   );
 }
 
@@ -215,6 +222,10 @@ const styles = StyleSheet.create({
     padding: 6,
     backgroundColor: globalStyles.clrNeutral200,
     marginBottom: 6,
+  },
+
+  'location__contents--editing': {
+    transform: [{translateX: 32}],
   },
 
   location__heading: {

@@ -31,6 +31,10 @@ export interface LocationProfile {
   latitude: number;
 }
 
+export interface RenderedLocationProfile extends LocationProfile {
+  id: string;
+}
+
 export interface LocationProfiles {
   [key: string]: LocationProfile;
 }
@@ -66,7 +70,9 @@ class LocationManager {
     if (activeLocation == null && this.permissionsGranted) {
       this.setActiveLocation(null);
     } else if (activeLocation != null && this.permissionsGranted) {
-      this.setActiveLocation(JSON.parse(activeLocation));
+      this.setActiveLocation(
+        JSON.parse(activeLocation) as RenderedLocationProfile,
+      );
     }
   }
 
@@ -158,9 +164,10 @@ class LocationManager {
     return profiles[id];
   }
 
-  async setActiveLocation(location: LocationProfile | null) {
+  async setActiveLocation(location: RenderedLocationProfile | null) {
     if (location != null) {
       this.selectedLocation = location;
+      this.selectedLocationId = location.id;
       await AsyncStorage.setItem(storeActiveName, JSON.stringify(location));
     } else {
       const location = await this.getCurrentLocation();
@@ -173,6 +180,7 @@ class LocationManager {
         latitude: location!.latitude,
         longitude: location!.longitude,
       };
+      this.selectedLocationId = null;
       await AsyncStorage.setItem(storeActiveName, JSON.stringify(null));
     }
 

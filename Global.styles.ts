@@ -255,16 +255,10 @@ export const NavigationDarkTheme = {
 export const stylesheet = StyleSheet.create({
   body: {
     padding: 6,
-    paddingTop: StatusBar.currentHeight,
     flex: 1,
   },
 
   navbar: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    zIndex: 1,
     backgroundColor: styles.clrNeutral200,
     elevation: 5,
   },
