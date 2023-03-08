@@ -43,7 +43,7 @@ export default function Search({navigation}: Props) {
     if (searchRef.current) searchRef.current.blur();
 
     setLoading(true);
-    const data = await DataFetcher.getGeocode(searchQuery);
+    const data = await DataFetcher.getGeocode(searchQuery.trim());
 
     if (data != null) {
       setResults(
@@ -91,7 +91,7 @@ export default function Search({navigation}: Props) {
           autoFocus
           ref={searchRef}
           cursorColor={globalStyles.clrPrimary500}
-          onChangeText={text => setSearchQuery(text.trim())}
+          onChangeText={text => setSearchQuery(text)}
           value={searchQuery}
           onSubmitEditing={() => search()}
         />

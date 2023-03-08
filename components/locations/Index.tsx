@@ -50,7 +50,18 @@ export default function Home({navigation, route}: Props) {
   const [gpsEnabled, setGpsEnabled] = useState(
     locationManager.selectedLocation?.gps || false,
   );
-  const toggleGpsSwitch = () => setGpsEnabled(previousState => !previousState);
+  const toggleGpsSwitch = () =>
+    setGpsEnabled(previousState => {
+      const newState = !previousState;
+
+      locationManager.setActiveLocation(
+        newState && locationManager.selectedLocation != null
+          ? null
+          : locations[0],
+      );
+
+      return newState;
+    });
 
   locationManager.addEventStateUpdater(
     'locations',
@@ -71,10 +82,6 @@ export default function Home({navigation, route}: Props) {
       );
     })();
   }, []);
-
-  useEffect(() => {
-    locationManager.setActiveLocation(gpsEnabled ? null : locations[0]);
-  }, [gpsEnabled]);
 
   const data = route.params;
 

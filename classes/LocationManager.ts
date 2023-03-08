@@ -65,12 +65,8 @@ class LocationManager {
 
     if (activeLocation == null && this.permissionsGranted) {
       this.setActiveLocation(null);
-
-      this.emitEvent('selectedLocation', this.selectedLocation);
     } else if (activeLocation != null && this.permissionsGranted) {
-      this.selectedLocation = JSON.parse(activeLocation);
-
-      this.emitEvent('selectedLocation', this.selectedLocation);
+      this.setActiveLocation(JSON.parse(activeLocation));
     }
   }
 
