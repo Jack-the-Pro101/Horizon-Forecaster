@@ -41,7 +41,7 @@ type Props = CompositeScreenProps<
 >;
 
 export default function Home({navigation, route}: Props) {
-  const {location, setLocation} = useContext(LocationContext);
+  const {location} = useContext(LocationContext);
   const [locations, setLocations] = useState<RenderedLocationProfile[]>([]);
 
   const [editing, setEditing] = useState(false);
@@ -95,12 +95,12 @@ export default function Home({navigation, route}: Props) {
       administration: data.admin1,
       country: data.country,
       latitude: data.latitude,
-      longitude: data.longtitude,
+      longitude: data.longitude,
     });
   }, [data?.id]);
 
-  function selectLocation(data: RenderedLocationProfile) {
-    if (editing) {
+  function selectLocation(data: RenderedLocationProfile, isEditing = false) {
+    if (isEditing) {
       setSelectedLocations(values => {
         if (selectedLocations.includes(data.id)) {
           return values.filter(value => value !== data.id);
@@ -121,8 +121,11 @@ export default function Home({navigation, route}: Props) {
       <TouchableOpacity
         style={styles.location}
         activeOpacity={0.9}
-        onPress={() => selectLocation(data)}
-        onLongPress={() => setEditing(true)}>
+        onPress={() => selectLocation(data, editing)}
+        onLongPress={() => {
+          setEditing(true);
+          selectLocation(data, true);
+        }}>
         <View
           style={editing ? styles['location__contents--editing'] : undefined}>
           <Ionicons
@@ -191,7 +194,7 @@ export default function Home({navigation, route}: Props) {
             </View>
           </View>
           {location ? (
-            <View style={styles.location}>
+            <View style={{...styles.location, ...styles['location--current']}}>
               {location.gps ? (
                 <>
                   <Text style={styles.location__heading} fontWeight={600}>
@@ -252,6 +255,13 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
 
+  'location--current': {
+    backgroundColor: 'transparent',
+    borderWidth: 1,
+    borderColor: globalStyles.clrPrimary300,
+    borderStyle: 'solid',
+  },
+
   'location__contents--editing': {
     paddingLeft: 32,
   },
@@ -261,6 +271,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     left: 0,
     display: 'none',
+    color: globalStyles.clrPrimary500,
   },
 
   'location__circle-icon--editing': {

@@ -54,7 +54,7 @@ export default function Search({navigation}: Props) {
             country: result.country,
             admin1: result.admin1,
             latitude: result.latitude,
-            longtitude: result.longtitude,
+            longitude: result.longitude,
             timezone: result.timezone,
           };
         }),

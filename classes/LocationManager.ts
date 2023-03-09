@@ -190,8 +190,6 @@ class LocationManager {
   async saveLocation(location: LocationProfile) {
     const profiles = await this.getAllLocations();
 
-    console.log(profiles, location);
-
     profiles[uuid()] = location;
 
     await AsyncStorage.setItem(storeKeyName, JSON.stringify(profiles));
