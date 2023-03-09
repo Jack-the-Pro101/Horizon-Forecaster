@@ -188,13 +188,16 @@ export default function Home({navigation, route}: Props) {
                 flexDirection: 'row',
                 alignItems: 'center',
               }}>
-              <TouchableOpacity onPress={() => setEditing(false)}>
+              <TouchableOpacity onPress={() => {
+                setEditing(false);
+                setSelectedLocations([])
+              }}>
                 <Ionicons name="arrow-back" size={32} />
               </TouchableOpacity>
 
               <Text style={{fontSize: 16, marginLeft: 8}}>
                 {selectedLocations.length} location
-                {selectedLocations.length > 1 ? 's' : ''} selected
+                {selectedLocations.length > 1 ? selectedLocations.length === 0 ? '' : 's' : ''} selected
               </Text>
             </View>
             <TouchableOpacity
@@ -202,6 +205,7 @@ export default function Home({navigation, route}: Props) {
               onPress={() => {
                 deleteLocations(selectedLocations);
                 setEditing(false);
+                setSelectedLocations([])
               }}>
               <Ionicons
                 name="trash"

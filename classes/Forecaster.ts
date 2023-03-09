@@ -4,6 +4,8 @@ import DataFetcher from './DataFetcher';
 import locationManager from './LocationManager';
 import LocationManager from './LocationManager';
 
+type HourlyRawWeatherData = RawWeatherData["hourly"];
+
 type WeightMap = {[key: string]: number}
 
 const weightMap: WeightMap = {
@@ -19,17 +21,18 @@ const totalWeight = Object.keys(weightMap).reduce(
   0,
 );
 
-interface WeightFunctionResult {
-  result: number,
-  reasoning: [{
+type WeightFunctionResultReason = {
     name: string,
     result: number
-  }]
+  }
+
+interface WeightFunctionResult {
+  result: number;
+  reasoning: WeightFunctionResultReason[];
 }
 
 interface WeightFunction {
   for: string;
-  weights: WeightMap;
   check: (dataType: string) => boolean;
   calculate: (data: any[], weights: WeightMap, times: number[], targetTime: number) => WeightFunctionResult;
 }
@@ -54,10 +57,10 @@ class ForecastFactory {
   totalPossibleWeight: number;
   weights: WeightMap;
   weightingFunctions: WeightFunction[];
-  relevantData: any[];
+  relevantData: Partial<HourlyRawWeatherData>;
   dataTypes: string[];
 
-  constructor(weights: WeightMap, weightingFunctions: WeightFunction[], data: any[]) {
+  constructor(weights: WeightMap, weightingFunctions: WeightFunction[], data: HourlyRawWeatherData) {
     this.relevantData = data;
     this.weights = weights;
     this.weightingFunctions = weightingFunctions;
@@ -91,7 +94,7 @@ class ForecastFactory {
       const calculation = weightFunction.calculate(
         accumValues,
         this.weights,
-        this.relevantData.time,
+        this.relevantData.time!,
         options.targetTime,
       );
 
@@ -124,6 +127,13 @@ class Forecaster {
             const targetIndex = binarySearchRound(times, targetTime, (a, b) => a - b);
 
             const quality = 0.8;
+
+            const cloudCoverWeightMap: WeightMap = {
+              cloudcover_high: 100,
+              cloudcover_mid: 70,
+              cloudcover_low: 87,
+            }
+
 
             return {result: quality * weights[this.for], reasoning: []};
           },
