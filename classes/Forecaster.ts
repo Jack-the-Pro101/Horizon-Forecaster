@@ -4,9 +4,9 @@ import DataFetcher from './DataFetcher';
 import locationManager from './LocationManager';
 import LocationManager from './LocationManager';
 
-const weightMap: {
-  [key: string]: number;
-} = {
+type WeightMap = {[key: string]: number}
+
+const weightMap: WeightMap = {
   moisture: 100,
   cloudcover: 70,
   windspeed: 50,
@@ -19,7 +19,20 @@ const totalWeight = Object.keys(weightMap).reduce(
   0,
 );
 
-interface WeightFunction {}
+interface WeightFunctionResult {
+  result: number,
+  reasoning: [{
+    name: string,
+    result: number
+  }]
+}
+
+interface WeightFunction {
+  for: string;
+  weights: WeightMap;
+  check: (dataType: string) => boolean;
+  calculate: (data: any[], weights: WeightMap, times: number[], targetTime: number) => WeightFunctionResult;
+}
 
 function numberPercentProximity(
   inputNumber: number,
@@ -33,51 +46,25 @@ function numberPercentProximity(
   );
 }
 
-const weightFunctions /*: WeightFunction[] */ = [
-  {
-    for: 'cloudcover',
-    check: (dataType: string): boolean => dataType.startsWith('cloudcover'),
-    calculate: function (
-      data: any,
-      times: number[],
-      targetTime: number,
-    ): number {
-      // Find what time is closest to target time
-      const targetIndex = binarySearchRound(times, targetTime, (a, b) => a - b);
-
-      const quality = 0.8;
-
-      return quality * weightMap[this.for];
-    },
-  },
-
-  {
-    for: 'visibility',
-    check: (dataType: string): boolean => dataType === 'visibility',
-    calculate: function (
-      data: any,
-      times: number[],
-      targetTime: number,
-    ): number {
-      const quality = 0.5;
-
-      return quality * weightMap[this.for];
-    },
-  },
-];
-
 interface ForecastCalculationOptions {
   targetTime: number;
 }
 
 class ForecastFactory {
-  constructor(weights, weightingFunctions, data) {
-    this.relevantData = data;
+  totalPossibleWeight: number;
+  weights: WeightMap;
+  weightingFunctions: WeightFunction[];
+  relevantData: any[];
+  dataTypes: string[];
 
+  constructor(weights: WeightMap, weightingFunctions: WeightFunction[], data: any[]) {
+    this.relevantData = data;
+    this.weights = weights;
+    this.weightingFunctions = weightingFunctions;
     const dataTypes = Object.keys(data);
     this.dataTypes = dataTypes;
 
-    this.totalPossibleWeight = weightFunctions.reduce(
+    this.totalPossibleWeight = weightingFunctions.reduce(
       (accumValue, currentValue) =>
         (accumValue += dataTypes.find(type =>
           weightingFunctions.find(func => func.check(type)),
@@ -88,10 +75,10 @@ class ForecastFactory {
     );
   }
 
-  calculate(options) {
+  calculate(options: ForecastCalculationOptions) {
     let accumWeight = 0;
 
-    for (const weightFunction of weightFunctions) {
+    for (const weightFunction of this.weightingFunctions) {
       const accumValues: any[] = [];
 
       this.dataTypes.forEach(type => {
@@ -101,11 +88,14 @@ class ForecastFactory {
 
       if (accumValues.length === 0) continue;
 
-      accumWeight += weightFunction.calculate(
+      const calculation = weightFunction.calculate(
         accumValues,
+        this.weights,
         this.relevantData.time,
         options.targetTime,
       );
+
+      accumWeight += calculation.result;
     }
 
     return accumWeight;
@@ -120,13 +110,31 @@ class Forecaster {
     const relevantData = data.hourly;
     const calculator = new ForecastFactory(
       weightMap,
-      weightFunctions,
+      [
+        {
+          for: 'cloudcover',
+          check: (dataType: string): boolean => dataType.startsWith('cloudcover'),
+          calculate: function (
+            data: any[],
+            weights: WeightMap,
+            times: number[],
+            targetTime: number,
+          ) {
+            // Find what time is closest to target time
+            const targetIndex = binarySearchRound(times, targetTime, (a, b) => a - b);
+
+            const quality = 0.8;
+
+            return {result: quality * weights[this.for], reasoning: []};
+          },
+        }
+      ],
       relevantData,
     );
 
     return (
       Math.round(
-        (calculator.calculate({targetTime: options.targetTime}) /
+        (calculator.calculate(options) /
           calculator.totalPossibleWeight) *
           100,
       ) / 100
