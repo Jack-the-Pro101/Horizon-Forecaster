@@ -206,6 +206,17 @@ class LocationManager {
 
     this.emitEvent('locations', profiles);
   }
+
+  async deleteLocations(ids: string[]) {
+    const profiles = await this.getAllLocations();
+
+    for (const id of ids) {
+      delete profiles[id];
+    }
+
+    await AsyncStorage.setItem(storeKeyName, JSON.stringify(profiles));
+    this.emitEvent('locations', profiles);
+  }
 }
 
 const locationManager = new LocationManager();

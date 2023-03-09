@@ -70,44 +70,67 @@ interface ForecastCalculationOptions {
   targetTime: number;
 }
 
-class Forecaster {
-  calculateQuality(
-    data: RawWeatherData,
-    options: ForecastCalculationOptions,
-  ): number {
-    const relevantData = data.hourly;
+class ForecastFactory {
+  constructor(weights, weightingFunctions, data) {
+    this.relevantData = data;
 
-    const dataTypes = Object.keys(relevantData);
+    const dataTypes = Object.keys(data);
+    this.dataTypes = dataTypes;
 
-    const totalPossibleWeight = weightFunctions.reduce(
+    this.totalPossibleWeight = weightFunctions.reduce(
       (accumValue, currentValue) =>
         (accumValue += dataTypes.find(type =>
-          weightFunctions.find(func => func.check(type)),
+          weightingFunctions.find(func => func.check(type)),
         )
-          ? weightMap[currentValue.for]
+          ? weights[currentValue.for]
           : 0),
       0,
     );
+  }
 
+  calculate(options) {
     let accumWeight = 0;
 
     for (const weightFunction of weightFunctions) {
       const accumValues: any[] = [];
 
-      dataTypes.forEach(type => {
-        if (weightFunction.check(type)) accumValues.push(relevantData[type]);
+      this.dataTypes.forEach(type => {
+        if (weightFunction.check(type))
+          accumValues.push(this.relevantData[type]);
       });
 
       if (accumValues.length === 0) continue;
 
       accumWeight += weightFunction.calculate(
         accumValues,
-        relevantData.time,
+        this.relevantData.time,
         options.targetTime,
       );
     }
 
-    return Math.round((accumWeight / totalPossibleWeight) * 100) / 100;
+    return accumWeight;
+  }
+}
+
+class Forecaster {
+  calculateQuality(
+    data: RawWeatherData,
+    options: ForecastCalculationOptions,
+  ): number {
+    const relevantData = data.hourly;
+    const calculator = new ForecastFactory(
+      weightMap,
+      weightFunctions,
+      relevantData,
+    );
+
+    return (
+      Math.round(
+        (calculator.calculate({targetTime: options.targetTime}) /
+          calculator.totalPossibleWeight) *
+          100,
+      ) / 100
+    );
   }
 
   async getForecast() {

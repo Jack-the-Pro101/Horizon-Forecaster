@@ -114,6 +114,10 @@ export default function Home({navigation, route}: Props) {
     }
   }
 
+  function deleteLocations(selectedLocations: string[]) {
+    locationManager.deleteLocations(selectedLocations);
+  }
+
   function renderLocation(data: RenderedLocationProfile) {
     if (data.id === locationManager.selectedLocationId) return null;
 
@@ -158,23 +162,55 @@ export default function Home({navigation, route}: Props) {
   return (
     <>
       <View style={stylesheet.navbar}>
-        <View style={stylesheet.navbar__content}>
-          <View
-            style={{
-              display: 'flex',
-              flexDirection: 'row',
-              alignItems: 'center',
-            }}>
-            <TouchableOpacity onPress={() => navigation.navigate('Home')}>
-              <Ionicons name="arrow-back" size={32} />
-            </TouchableOpacity>
+        {!editing ? (
+          <View style={stylesheet.navbar__content}>
+            <View
+              style={{
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'center',
+              }}>
+              <TouchableOpacity onPress={() => navigation.navigate('Home')}>
+                <Ionicons name="arrow-back" size={32} />
+              </TouchableOpacity>
 
-            <Text style={{fontSize: 18, marginLeft: 8}}>Locations</Text>
+              <Text style={{fontSize: 18, marginLeft: 8}}>Locations</Text>
+            </View>
+            <TouchableOpacity onPress={() => navigation.navigate('Search')}>
+              <Ionicons name="add-outline" size={32} />
+            </TouchableOpacity>
           </View>
-          <TouchableOpacity onPress={() => navigation.navigate('Search')}>
-            <Ionicons name="add-outline" size={32} />
-          </TouchableOpacity>
-        </View>
+        ) : (
+          <View style={stylesheet.navbar__content}>
+            <View
+              style={{
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'center',
+              }}>
+              <TouchableOpacity onPress={() => setEditing(false)}>
+                <Ionicons name="arrow-back" size={32} />
+              </TouchableOpacity>
+
+              <Text style={{fontSize: 16, marginLeft: 8}}>
+                {selectedLocations.length} location
+                {selectedLocations.length > 1 ? 's' : ''} selected
+              </Text>
+            </View>
+            <TouchableOpacity
+              disabled={selectedLocations.length === 0}
+              onPress={() => {
+                deleteLocations(selectedLocations);
+                setEditing(false);
+              }}>
+              <Ionicons
+                name="trash"
+                size={28}
+                style={{color: globalStyles.clrDanger500}}
+              />
+            </TouchableOpacity>
+          </View>
+        )}
       </View>
       <View style={stylesheet.body}>
         <View style={{marginBottom: 24}}>

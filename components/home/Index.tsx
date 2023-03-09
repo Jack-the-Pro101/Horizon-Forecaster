@@ -62,14 +62,18 @@ export default function Home({navigation, route}: Props) {
       <View style={stylesheet.navbar}>
         <View style={stylesheet.navbar__content}>
           <TouchableOpacity activeOpacity={0.7}>
-            <AntDesignIcons name="bars" size={24} />
+            <AntDesignIcons name="bars" size={32} />
           </TouchableOpacity>
           <TouchableOpacity
             activeOpacity={0.7}
             onPress={() => navigation.navigate('Locations')}>
-            <Text>
+            <Text style={{flex: 1}}>
               <Ionicons name="location-outline" size={24} />
-              {location == null ? 'Loading...' : location.name}
+              {location == null
+                ? locationManager.permissionsGranted
+                  ? 'Loading...'
+                  : 'CONFIGURE >'
+                : location.name}
             </Text>
           </TouchableOpacity>
         </View>
