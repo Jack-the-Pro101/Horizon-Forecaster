@@ -44,14 +44,12 @@ export default function Home({navigation, route}: Props) {
       setWeatherData(data);
 
       const quality = Forecaster.calculateQuality(data, {
-        targetTime: data.daily?.sunset[1],
+        targetTime: data.daily.sunset[1],
       });
 
       setForecast({
         quality,
       });
-
-      console.log('Final result', quality);
     })();
   }, [location]);
 

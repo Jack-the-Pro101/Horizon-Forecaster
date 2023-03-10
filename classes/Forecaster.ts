@@ -15,11 +15,6 @@ const weightMap: WeightMap = {
   rain: 90,
 };
 
-const totalWeight = Object.keys(weightMap).reduce(
-  (accumValue, currentValue) => (accumValue += weightMap[currentValue]),
-  0,
-);
-
 type WeightFunctionResultReason = {
   name: string;
   result: number;
@@ -269,6 +264,40 @@ class Forecaster {
 
             return {
               result: result * weights[this.for],
+              reasoning: [],
+            };
+          },
+        },
+
+        {
+          for: 'visibility',
+          check: function (dataType) {
+            return dataType === this.for;
+          },
+          calculate: function (sortedData, weights, times, targetTime) {
+            const data = sortedData[0].data;
+
+            const targetIndex = binarySearchRound(
+              times,
+              targetTime,
+              (a, b) => a - b,
+            );
+
+            const visibilities = [
+              data[targetIndex - 1],
+              data[targetIndex],
+              data[targetIndex + 1],
+            ];
+
+            let accumWeight = 0;
+
+            for (const visibility of visibilities) {
+              accumWeight += Math.min(visibility / 3500, 1);
+            }
+
+            accumWeight /= visibilities.length;
+            return {
+              result: accumWeight * weights[this.for],
               reasoning: [],
             };
           },

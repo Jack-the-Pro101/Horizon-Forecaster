@@ -47,6 +47,8 @@ class DataFetcher {
     if (request.ok) {
       const data = (await request.json()) as RawWeatherData;
 
+      console.log(data);
+
       return data;
     } else {
       return null;
