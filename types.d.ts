@@ -53,7 +53,7 @@ export interface RawWeatherData {
     windspeed_120m: number[];
     windspeed_180m: number[];
     time: number[];
-    [key: string];
+    [key: string]: number[];
   };
 
   hourly_units: {
@@ -132,3 +132,7 @@ export interface CoreGeocodeLocation
     | 'admin4_id'
     | 'postcodes'
   > {}
+
+export interface ForecastResult {
+  quality: number;
+}

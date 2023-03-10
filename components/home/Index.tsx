@@ -19,7 +19,7 @@ import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import AntDesignIcons from 'react-native-vector-icons/AntDesign';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
-import {RawWeatherData, RootStackParamList} from '../../types';
+import {ForecastResult, RawWeatherData, RootStackParamList} from '../../types';
 import Forecaster from '../../classes/Forecaster';
 import DataFetcher from '../../classes/DataFetcher';
 import locationManager from '../../classes/LocationManager';
@@ -33,6 +33,7 @@ export default function Home({navigation, route}: Props) {
   const isDarkMode = useColorScheme() === 'dark';
 
   const [weatherData, setWeatherData] = useState<RawWeatherData | null>(null);
+  const [forecast, setForecast] = useState<ForecastResult | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -46,7 +47,11 @@ export default function Home({navigation, route}: Props) {
         targetTime: data.daily?.sunset[1],
       });
 
-      console.log(quality);
+      setForecast({
+        quality,
+      });
+
+      console.log('Final result', quality);
     })();
   }, [location]);
 
@@ -88,7 +93,7 @@ export default function Home({navigation, route}: Props) {
         <View style={{...styles.section, ...styles.section__hero}}>
           <View style={styles.forecast}>
             <Text style={styles.forecast__text} fontWeight={600}>
-              100%
+              {forecast == null ? '...' : forecast.quality * 100}%
             </Text>
             <Text style={styles.forecast__subtext}>Sunset quality</Text>
           </View>
