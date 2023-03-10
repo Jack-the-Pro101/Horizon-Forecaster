@@ -91,7 +91,7 @@ export default function Home({navigation, route}: Props) {
         <View style={{...styles.section, ...styles.section__hero}}>
           <View style={styles.forecast}>
             <Text style={styles.forecast__text} fontWeight={600}>
-              {forecast == null ? '...' : forecast.quality * 100}%
+              {forecast == null ? '...' : (forecast.quality * 100).toFixed(1)}%
             </Text>
             <Text style={styles.forecast__subtext}>Sunset quality</Text>
           </View>
