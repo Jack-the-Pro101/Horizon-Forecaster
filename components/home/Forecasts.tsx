@@ -16,6 +16,7 @@ interface RenderedForecast {
 const dateFormatter = new Intl.DateTimeFormat(undefined, {
   month: 'long',
   day: 'numeric',
+  weekday: 'short',
 });
 
 export default function Forecasts({navigation, route}: Props) {
@@ -70,40 +71,47 @@ export default function Forecasts({navigation, route}: Props) {
           </View>
         </View>
       </View>
-      <View style={stylesheet.body}>
-        <SectionList
-          sections={renderedForecast}
-          renderSectionHeader={({section}) => (
-            <Text style={styles.forecast__heading}>
-              {dateFormatter.format(section.time * 1000)}
+
+      <SectionList
+        style={styles.forecast__list}
+        sections={renderedForecast}
+        renderSectionHeader={({section}) => (
+          <Text style={styles.forecast__heading}>
+            {dateFormatter.format(section.time * 1000)}
+          </Text>
+        )}
+        renderItem={({item}) => (
+          <View
+            style={{
+              ...stylesheet.flexBlock,
+              ...styles.forecast__item,
+            }}>
+            <Text style={styles.forecast__type}>{item.type}</Text>
+            <Text style={styles.forecast__result} fontWeight={500}>
+              {(item.quality * 100).toFixed(0)}%
             </Text>
-          )}
-          renderItem={({item}) => (
-            <View
-              style={{
-                ...stylesheet.flexBlockSpread,
-                ...styles.forecast,
-              }}>
-              <Text style={styles.forecast__type}>{item.type}</Text>
-              <Text style={styles.forecast__result} fontWeight={600}>
-                {(item.quality * 100).toFixed(0)}%
-              </Text>
-            </View>
-          )}
-        />
-      </View>
+          </View>
+        )}
+      />
     </>
   );
 }
 
 const styles = StyleSheet.create({
-  forecast: {
+  forecast__list: {
+    padding: 6,
+  },
+
+  forecast__item: {
     paddingVertical: 12,
     paddingHorizontal: 8,
   },
 
   forecast__heading: {
-    marginTop: 12,
+    marginTop: 6,
+    paddingTop: 6,
+    borderBottomColor: globalStyles.clrNeutral200,
+    borderBottomWidth: 1,
   },
 
   forecast__type: {
@@ -113,5 +121,6 @@ const styles = StyleSheet.create({
 
   forecast__result: {
     color: globalStyles.clrNeutral900,
+    fontSize: 16,
   },
 });

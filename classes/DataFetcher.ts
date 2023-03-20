@@ -43,7 +43,7 @@ class DataFetcher {
       `https://api.open-meteo.com/v1/forecast?latitude=${
         location.latitude
       }&longitude=${location.longitude}&elevation=${
-        location.elevation
+        location.elevation || 'nan'
       }&hourly=precipitation,rain,cloudcover_low,cloudcover_mid,cloudcover_high,visibility,windspeed_80m,windspeed_120m,windspeed_180m,relativehumidity_1000hPa,relativehumidity_500hPa,relativehumidity_150hPa&models=best_match&daily=sunrise,sunset&timeformat=unixtime&past_days=1&timezone=${RNLocalize.getTimeZone()}`,
     );
 

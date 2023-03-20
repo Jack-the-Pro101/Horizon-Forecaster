@@ -189,7 +189,7 @@ export default function Home({navigation, route}: Props) {
           activeOpacity={0.9}
           disabled={forecast == null}
           onPress={() => navigation.navigate('Forecasts', forecast!)}>
-          <View style={stylesheet.flexBlockSpread}>
+          <View style={stylesheet.flexBlock}>
             <Text style={styles.section__heading} fontWeight={500}>
               7-Day Forecast
             </Text>
@@ -228,6 +228,9 @@ export default function Home({navigation, route}: Props) {
             )}
           </View>
         </TouchableOpacity>
+        <View style={styles.footer}>
+          <Text>Made by: Emperor of Bluegaria</Text>
+        </View>
       </ScrollView>
     </>
   );
@@ -328,5 +331,16 @@ const styles = StyleSheet.create({
   forecasts__time: {
     color: globalStyles.clrNeutral700,
     fontSize: 14,
+  },
+
+  footer: {
+    borderTopColor: globalStyles.clrNeutral200,
+    borderTopWidth: 1,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 128,
+    marginTop: 64,
+    padding: 8,
   },
 });
