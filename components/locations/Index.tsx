@@ -96,6 +96,7 @@ export default function Home({navigation, route}: Props) {
       country: data.country,
       latitude: data.latitude,
       longitude: data.longitude,
+      elevation: data.elevation,
     });
   }, [data?.id]);
 

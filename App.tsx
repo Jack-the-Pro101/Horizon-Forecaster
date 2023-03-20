@@ -16,15 +16,25 @@ import {NavigationContainer, DefaultTheme} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 
 import HomeScreen from './components/home/Index';
+import Forecasts from './components/home/Forecasts';
 import Location from './components/locations/Index';
 import LocationSearch from './components/locations/Search';
+import Settings from './components/settings/Index';
+import Setting from './components/settings/Setting';
 
 import {NavigationDarkTheme} from './Global.styles';
-import {LocationStackParamList, RootStackParamList} from './types';
+import {
+  LocationStackParamList,
+  RootStackParamList,
+  SettingsStackParamList,
+} from './types';
 import locationManager, {LocationProfile} from './classes/LocationManager';
+
+import {settings} from './Settings';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const LocationStack = createNativeStackNavigator<LocationStackParamList>();
+const SettingsStack = createNativeStackNavigator<SettingsStackParamList>();
 
 // @ts-expect-error
 export const LocationContext = React.createContext<LocationContextProps>();
@@ -45,6 +55,21 @@ function LocationScreen() {
   );
 }
 
+function SettingsScreen() {
+  return (
+    <SettingsStack.Navigator
+      initialRouteName="Index"
+      screenOptions={{headerShown: false}}>
+      <SettingsStack.Screen name="Index" component={Settings} />
+      <SettingsStack.Screen
+        name="Setting"
+        component={Setting}
+        options={{animation: 'slide_from_right'}}
+      />
+    </SettingsStack.Navigator>
+  );
+}
+
 const App = () => {
   const isDark = useColorScheme() === 'dark';
 
@@ -62,22 +87,32 @@ const App = () => {
   }, [setLocation]);
 
   return (
-    <NavigationContainer
-      theme={NavigationDarkTheme}
-      fallback={<Text>Loading</Text>}>
-      <LocationContext.Provider value={{location, setLocation}}>
-        <Stack.Navigator
-          initialRouteName="Home"
-          screenOptions={{headerShown: false}}>
-          <Stack.Screen name="Home" component={HomeScreen} />
-          <Stack.Screen
-            name="Locations"
-            component={LocationScreen}
-            options={{animation: 'slide_from_right'}}
-          />
-        </Stack.Navigator>
-      </LocationContext.Provider>
-    </NavigationContainer>
+    <>
+      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
+
+      <NavigationContainer
+        theme={NavigationDarkTheme}
+        fallback={<Text>Loading</Text>}>
+        <LocationContext.Provider value={{location, setLocation}}>
+          <Stack.Navigator
+            initialRouteName="Home"
+            screenOptions={{headerShown: false}}>
+            <Stack.Screen name="Home" component={HomeScreen} />
+            <Stack.Screen name="Forecasts" component={Forecasts} />
+            <Stack.Screen
+              name="Settings"
+              component={SettingsScreen}
+              options={{animation: 'slide_from_left'}}
+            />
+            <Stack.Screen
+              name="Locations"
+              component={LocationScreen}
+              options={{animation: 'slide_from_right'}}
+            />
+          </Stack.Navigator>
+        </LocationContext.Provider>
+      </NavigationContainer>
+    </>
   );
 };
 

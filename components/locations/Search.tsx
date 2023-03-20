@@ -35,7 +35,7 @@ type Props = CompositeScreenProps<
 export default function Search({navigation}: Props) {
   const [searchQuery, setSearchQuery] = useState('');
   const [results, setResults] = useState<CoreGeocodeLocation[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<null | boolean>(null);
 
   const searchRef = useRef<TextInput>(null);
 
@@ -55,6 +55,7 @@ export default function Search({navigation}: Props) {
             admin1: result.admin1,
             latitude: result.latitude,
             longitude: result.longitude,
+            elevation: result.elevation,
             timezone: result.timezone,
           };
         }),
@@ -82,34 +83,58 @@ export default function Search({navigation}: Props) {
   }
 
   return (
-    <View style={{flex: 1}}>
-      <View style={styles.search__bar}>
-        <TextInput
-          style={styles.search__input}
-          placeholder="Search location..."
-          keyboardType="web-search"
-          autoFocus
-          ref={searchRef}
-          cursorColor={globalStyles.clrPrimary500}
-          onChangeText={text => setSearchQuery(text)}
-          value={searchQuery}
-          onSubmitEditing={() => search()}
-        />
+    <>
+      <View style={stylesheet.navbar}>
+        <View style={stylesheet.navbar__content}>
+          <View
+            style={{
+              display: 'flex',
+              flexDirection: 'row',
+              alignItems: 'center',
+            }}>
+            <TouchableOpacity onPress={() => navigation.navigate('Index')}>
+              <Ionicons name="arrow-back" size={32} />
+            </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => search()}>
-          <Ionicons name="search" size={24} />
-        </TouchableOpacity>
+            <Text style={{fontSize: 18, marginLeft: 8}}>Add Location</Text>
+          </View>
+        </View>
       </View>
+      <View style={{flex: 1}}>
+        <View style={styles.search__bar}>
+          <TextInput
+            style={styles.search__input}
+            placeholder="Search location..."
+            keyboardType="web-search"
+            autoFocus
+            ref={searchRef}
+            cursorColor={globalStyles.clrPrimary500}
+            onChangeText={text => setSearchQuery(text)}
+            value={searchQuery}
+            onSubmitEditing={() => search()}
+          />
 
-      <FlatList
-        data={results}
-        renderItem={data => renderResult(data.item)}
-        keyExtractor={item => item.id.toString()}
-        ListEmptyComponent={
-          <Text style={styles.result__error}>No results found.</Text>
-        }
-      />
-    </View>
+          <TouchableOpacity onPress={() => search()}>
+            <Ionicons name="search" size={24} />
+          </TouchableOpacity>
+        </View>
+
+        <FlatList
+          data={results}
+          renderItem={data => renderResult(data.item)}
+          keyExtractor={item => item.id.toString()}
+          ListEmptyComponent={
+            <Text style={styles.result__error}>
+              {loading
+                ? 'Searching...'
+                : loading == null
+                ? 'Results will show here.'
+                : 'No results found.'}
+            </Text>
+          }
+        />
+      </View>
+    </>
   );
 }
 
@@ -124,6 +149,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 6,
+    borderBottomColor: globalStyles.clrNeutral200,
+    borderBottomWidth: 1,
   },
 
   search__input: {

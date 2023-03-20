@@ -29,6 +29,7 @@ export interface LocationProfile {
   gps?: boolean;
   longitude: number;
   latitude: number;
+  elevation: number | null;
 }
 
 export interface RenderedLocationProfile extends LocationProfile {
@@ -134,7 +135,11 @@ class LocationManager {
         (resolve, reject) => {
           Geolocation.getCurrentPosition(
             ({coords}) => {
-              resolve({latitude: coords.latitude, longitude: coords.longitude});
+              resolve({
+                latitude: coords.latitude,
+                longitude: coords.longitude,
+                elevation: coords.altitude,
+              });
             },
             error => {
               console.error(error);
@@ -179,6 +184,7 @@ class LocationManager {
         gps: true,
         latitude: location!.latitude,
         longitude: location!.longitude,
+        elevation: location?.elevation || null,
       };
       this.selectedLocationId = null;
       await AsyncStorage.setItem(storeActiveName, JSON.stringify(null));

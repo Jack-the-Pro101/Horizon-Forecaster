@@ -1,5 +1,5 @@
 import {WeatherDataOptions, RawWeatherData, RawGeocodeData} from '../types';
-import locationManager from './LocationManager';
+import * as RNLocalize from 'react-native-localize';
 
 export const API_SOURCES = [
   {
@@ -39,9 +39,12 @@ class DataFetcher {
     options: WeatherDataOptions,
   ): Promise<RawWeatherData | null> {
     const {location} = options;
-
     const request = await fetch(
-      `https://api.open-meteo.com/v1/forecast?latitude=${location.latitude}&longitude=${location.longitude}&hourly=temperature_2m,relativehumidity_2m,rain,cloudcover_low,cloudcover_mid,cloudcover_high,visibility,windspeed_10m,windspeed_80m,windspeed_120m,windspeed_180m&daily=sunrise,sunset&timeformat=unixtime&timezone=America%2FNew_York&past_days=1`,
+      `https://api.open-meteo.com/v1/forecast?latitude=${
+        location.latitude
+      }&longitude=${location.longitude}&elevation=${
+        location.elevation
+      }&hourly=precipitation,rain,cloudcover_low,cloudcover_mid,cloudcover_high,visibility,windspeed_80m,windspeed_120m,windspeed_180m,relativehumidity_1000hPa,relativehumidity_500hPa,relativehumidity_150hPa&models=best_match&daily=sunrise,sunset&timeformat=unixtime&past_days=1&timezone=${RNLocalize.getTimeZone()}`,
     );
 
     if (request.ok) {

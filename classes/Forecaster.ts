@@ -8,7 +8,7 @@ type HourlyRawWeatherData = RawWeatherData['hourly'];
 type WeightMap = {[key: string]: number};
 
 const weightMap: WeightMap = {
-  moisture: 100,
+  moisture: 120,
   cloudcover: 70,
   windspeed: 50,
   visibility: 70,
@@ -102,7 +102,9 @@ class ForecastFactory {
           if (weightFunction.check(type))
             accumValues.push({
               type,
-              data: (this.relevantData as HourlyRawWeatherData)[type]!,
+              data: (this.relevantData as HourlyRawWeatherData)[
+                type as keyof HourlyRawWeatherData
+              ]!,
             });
         });
       }
@@ -136,7 +138,7 @@ class Forecaster {
       [
         {
           for: 'cloudcover',
-          check: (dataType: string) => dataType.startsWith('cloudcover'),
+          check: dataType => dataType.startsWith('cloudcover'),
           calculate: function (data, weights, times, targetTime) {
             // Find what time is closest to target time
             const targetIndex = binarySearchRound(
@@ -206,7 +208,7 @@ class Forecaster {
                     let accumWeight = 0;
 
                     for (const cloudcover of cloudcovers) {
-                      accumWeight += numberPercentProximity(cloudcover, 50);
+                      accumWeight += numberPercentProximity(cloudcover, 35);
                     }
 
                     accumWeight /= cloudcovers.length;
@@ -239,7 +241,7 @@ class Forecaster {
                     let accumWeight = 0;
 
                     for (const cloudcover of cloudcovers) {
-                      accumWeight += numberPercentProximity(cloudcover, 5);
+                      accumWeight += numberPercentProximity(cloudcover, 10);
                     }
 
                     accumWeight /= cloudcovers.length;
@@ -268,7 +270,130 @@ class Forecaster {
             };
           },
         },
+        {
+          for: 'moisture',
+          check: dataType => dataType.startsWith('relativehumidity'),
+          calculate: function (data, weights, times, targetTime, sorted) {
+            const targetIndex = binarySearchRound(
+              times,
+              targetTime,
+              (a, b) => a - b,
+            );
 
+            const moistureWeightMap: WeightMap = {
+              relativehumidity_150hPa: 110,
+              relativehumidity_500hPa: 85,
+              relativehumidity_1000hPa: 40,
+            };
+
+            const calculator = new ForecastFactory(
+              moistureWeightMap,
+              [
+                {
+                  for: 'relativehumidity_1000hPa',
+                  check: function (dataType) {
+                    return dataType === this.for;
+                  },
+                  calculate(sortedData, weights, times, targetTime, sorted) {
+                    const data = sortedData.find(data =>
+                      this.check(data.type),
+                    )!.data;
+
+                    const moisturesLow = [
+                      data[targetTime - 1],
+                      data[targetTime],
+                      data[targetTime + 1],
+                    ];
+
+                    let accumWeight = 0;
+
+                    for (const moisture of moisturesLow) {
+                      accumWeight += numberPercentProximity(moisture, 10);
+                    }
+
+                    accumWeight /= moisturesLow.length;
+
+                    return {
+                      result: accumWeight * weights[this.for],
+                      reasoning: [],
+                    };
+                  },
+                },
+                {
+                  for: 'relativehumidity_500hPa',
+                  check: function (dataType) {
+                    return dataType === this.for;
+                  },
+                  calculate(sortedData, weights, times, targetTime, sorted) {
+                    const data = sortedData.find(data =>
+                      this.check(data.type),
+                    )!.data;
+
+                    const moisturesMid = [
+                      data[targetTime - 1],
+                      data[targetTime],
+                      data[targetTime + 1],
+                    ];
+
+                    let accumWeight = 0;
+
+                    for (const moisture of moisturesMid) {
+                      accumWeight += numberPercentProximity(moisture, 10);
+                    }
+
+                    accumWeight /= moisturesMid.length;
+
+                    return {
+                      result: accumWeight * weights[this.for],
+                      reasoning: [],
+                    };
+                  },
+                },
+                {
+                  for: 'relativehumidity_150hPa',
+                  check: function (dataType) {
+                    return dataType === this.for;
+                  },
+                  calculate(sortedData, weights, times, targetTime, sorted) {
+                    const data = sortedData.find(data =>
+                      this.check(data.type),
+                    )!.data;
+
+                    const moisturesHigh = [
+                      data[targetTime - 1],
+                      data[targetTime],
+                      data[targetTime + 1],
+                    ];
+
+                    let accumWeight = 0;
+
+                    for (const moisture of moisturesHigh) {
+                      accumWeight += numberPercentProximity(moisture, 5);
+                    }
+
+                    accumWeight /= moisturesHigh.length;
+
+                    return {
+                      result: accumWeight * weights[this.for],
+                      reasoning: [],
+                    };
+                  },
+                },
+              ],
+              data,
+            );
+
+            const result = calculator.calculate(
+              {targetTime: targetIndex},
+              true,
+            );
+
+            return {
+              result: result * weights[this.for],
+              reasoning: [],
+            };
+          },
+        },
         {
           for: 'visibility',
           check: function (dataType) {
@@ -296,6 +421,7 @@ class Forecaster {
             }
 
             accumWeight /= visibilities.length;
+
             return {
               result: accumWeight * weights[this.for],
               reasoning: [],
