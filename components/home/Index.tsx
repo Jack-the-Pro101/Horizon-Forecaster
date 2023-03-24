@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   Text as TextNative,
   View,
+  RefreshControl,
 } from 'react-native';
 
 import Text from '../global/CustomText';
@@ -43,6 +44,9 @@ export default function Home({navigation, route}: Props) {
 
   const [weatherData, setWeatherData] = useState<RawWeatherData | null>(null);
   const [forecast, setForecast] = useState<ForecastResult | null>(null);
+  const [refreshKey, setRefreshKey] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [lastRefresh, setLastRefresh] = useState(0);
 
   useEffect(() => {
     (async () => {
@@ -107,7 +111,21 @@ export default function Home({navigation, route}: Props) {
         },
         upcoming,
       });
+
+      setRefreshing(false);
+      setLastRefresh(Date.now());
     })();
+  }, [refreshKey]);
+
+  useEffect(() => {
+    if (Date.now() - lastRefresh < MINS_TO_MS) {
+      setRefreshing(false);
+      return;
+    }
+
+    setRefreshing(true);
+    setRefreshKey(value => !value);
+    setLastRefresh(Date.now());
   }, [location]);
 
   return (
@@ -139,7 +157,17 @@ export default function Home({navigation, route}: Props) {
         </View> */}
       </View>
 
-      <ScrollView style={stylesheet.body}>
+      <ScrollView
+        style={stylesheet.body}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={() => {
+              setRefreshKey(value => !value);
+              setRefreshing(true);
+            }}
+          />
+        }>
         <View style={{...styles.section, ...styles.section__hero}}>
           <View style={styles.forecast}>
             <Text style={styles.forecast__text} fontWeight={600}>
