@@ -29,6 +29,7 @@ export interface BaseCoordinates {
 
 export interface WeatherDataOptions {
   location: BaseCoordinates;
+  timezone: string;
 }
 
 export interface RawWeatherData {

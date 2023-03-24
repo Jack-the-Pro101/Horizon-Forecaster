@@ -444,9 +444,8 @@ class Forecaster {
 
     const data = await DataFetcher.getWeatherData({
       location: location,
+      timezone: location.timezone,
     });
-
-    // console.log(location, data);
 
     return data;
   }

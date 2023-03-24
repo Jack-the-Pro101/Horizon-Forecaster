@@ -97,6 +97,7 @@ export default function Home({navigation, route}: Props) {
       latitude: data.latitude,
       longitude: data.longitude,
       elevation: data.elevation,
+      timezone: data.timezone,
     });
   }, [data?.id]);
 

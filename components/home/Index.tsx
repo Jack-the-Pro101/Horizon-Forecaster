@@ -32,11 +32,22 @@ import {LocationContext} from '../../App';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
+interface LastRefresh {
+  time: number;
+  locationId: string | null;
+}
+
 const MINS_TO_MS = 1000 * 60;
 
 const timeFormatter = new Intl.DateTimeFormat(undefined, {
   hour: 'numeric',
   minute: 'numeric',
+});
+
+const dateFormatter = new Intl.DateTimeFormat(undefined, {
+  month: 'long',
+  day: 'numeric',
+  weekday: 'short',
 });
 
 export default function Home({navigation, route}: Props) {
@@ -46,10 +57,21 @@ export default function Home({navigation, route}: Props) {
   const [forecast, setForecast] = useState<ForecastResult | null>(null);
   const [refreshKey, setRefreshKey] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  const [lastRefresh, setLastRefresh] = useState(0);
+  const [lastRefresh, setLastRefresh] = useState<LastRefresh>({
+    time: 0,
+    locationId: '',
+  });
 
   useEffect(() => {
     (async () => {
+      if (
+        lastRefresh.time + MINS_TO_MS > Date.now() &&
+        lastRefresh.locationId === locationManager.selectedLocationId
+      ) {
+        setRefreshing(false);
+        return;
+      }
+
       const data = await Forecaster.getForecast();
 
       if (data == null) return; // TODO: Handle properly
@@ -113,20 +135,12 @@ export default function Home({navigation, route}: Props) {
       });
 
       setRefreshing(false);
-      setLastRefresh(Date.now());
+      setLastRefresh({
+        time: Date.now(),
+        locationId: locationManager.selectedLocationId,
+      });
     })();
-  }, [refreshKey]);
-
-  useEffect(() => {
-    if (Date.now() - lastRefresh < MINS_TO_MS) {
-      setRefreshing(false);
-      return;
-    }
-
-    setRefreshing(true);
-    setRefreshKey(value => !value);
-    setLastRefresh(Date.now());
-  }, [location]);
+  }, [location, refreshKey]);
 
   return (
     <>
@@ -162,6 +176,9 @@ export default function Home({navigation, route}: Props) {
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
+            tintColor={globalStyles.clrPrimary600}
+            progressBackgroundColor={globalStyles.clrNeutral200}
+            colors={[globalStyles.clrPrimary600]}
             onRefresh={() => {
               setRefreshKey(value => !value);
               setRefreshing(true);
@@ -232,7 +249,7 @@ export default function Home({navigation, route}: Props) {
               <>
                 <View style={styles.forecasts__item}>
                   <Text style={styles.forecasts__title}>
-                    {forecast.upcoming[1].type}
+                    {dateFormatter.format(forecast.upcoming[1].date * 1000)}
                   </Text>
                   <Text style={styles.forecasts__result} fontWeight={600}>
                     {(forecast.upcoming[1].quality * 100).toFixed(1)}%
@@ -243,7 +260,7 @@ export default function Home({navigation, route}: Props) {
                 </View>
                 <View style={styles.forecasts__item}>
                   <Text style={styles.forecasts__title}>
-                    {forecast.upcoming[2].type}
+                    {dateFormatter.format(forecast.upcoming[2].date * 1000)}
                   </Text>
                   <Text style={styles.forecasts__result} fontWeight={600}>
                     {(forecast.upcoming[2].quality * 100).toFixed(1)}%
@@ -340,9 +357,10 @@ const styles = StyleSheet.create({
 
   forecasts__item: {
     flex: 1,
-    padding: 4,
+    padding: 8,
     alignItems: 'center',
     justifyContent: 'center',
+    marginTop: 16,
   },
 
   forecasts__title: {

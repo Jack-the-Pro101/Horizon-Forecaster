@@ -2,6 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Platform} from 'react-native';
 import Geolocation from 'react-native-geolocation-service';
 import {uuidv4 as uuid} from '../utils';
+import * as RNLocalize from 'react-native-localize';
 
 import {
   request,
@@ -30,6 +31,7 @@ export interface LocationProfile {
   longitude: number;
   latitude: number;
   elevation: number | null;
+  timezone: string;
 }
 
 export interface RenderedLocationProfile extends LocationProfile {
@@ -175,16 +177,16 @@ class LocationManager {
       this.selectedLocationId = location.id;
       await AsyncStorage.setItem(storeActiveName, JSON.stringify(location));
     } else {
-      const location = await this.getCurrentLocation();
-
+      const gpsLocation = await this.getCurrentLocation();
       this.selectedLocation = {
         name: 'Current location',
         administration: '',
         country: '',
         gps: true,
-        latitude: location!.latitude,
-        longitude: location!.longitude,
-        elevation: location?.elevation || null,
+        latitude: gpsLocation!.latitude,
+        longitude: gpsLocation!.longitude,
+        timezone: RNLocalize.getTimeZone(),
+        elevation: gpsLocation?.elevation || null,
       };
       this.selectedLocationId = null;
       await AsyncStorage.setItem(storeActiveName, JSON.stringify(null));
