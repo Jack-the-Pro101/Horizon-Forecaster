@@ -1,3 +1,5 @@
+import {KeyboardTypeOptions} from 'react-native';
+
 export interface SettingsSection {
   displayTitle: string;
   id: string;
@@ -10,6 +12,7 @@ export interface Setting {
   description?: string;
   default: any;
   type: 'boolean' | 'number' | 'string';
+  keyboardType?: KeyboardTypeOptions;
 }
 
 export const settings: SettingsSection[] = [
@@ -38,6 +41,18 @@ export const settings: SettingsSection[] = [
         default: true,
         type: 'boolean',
       },
+      {
+        name: 'Notify Threshold',
+        id: 'notif_thres',
+        description: 'Notify if percentage matches or exceeds setting.',
+        default: 0.5,
+        type: 'number',
+        keyboardType: 'numeric',
+      },
     ],
   },
 ];
+
+class SettingsManager {}
+
+export default new SettingsManager();

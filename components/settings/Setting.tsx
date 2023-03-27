@@ -7,6 +7,7 @@ import {
   View,
   Switch,
   TouchableOpacity,
+  TextInput,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import globalStyles, {stylesheet} from '../../Global.styles';
@@ -19,18 +20,43 @@ type Props = CompositeScreenProps<
   StackScreenProps<RootStackParamList>
 >;
 
+function RenderSettingText({
+  name,
+  description,
+}: {
+  name: string;
+  description?: string;
+}) {
+  return (
+    <View style={styles.setting__text}>
+      <Text fontWeight={500} style={styles.setting__name}>
+        {name}
+      </Text>
+      {description && (
+        <Text style={styles.setting__description}>{description}</Text>
+      )}
+    </View>
+  );
+}
+
 const renderers = {
   renderSwitch: (setting: SettingType) => (
     <View style={styles.setting}>
-      <View style={styles.setting__text}>
-        <Text fontWeight={500} style={styles.setting__name}>
-          {setting.name}
-        </Text>
-        {setting.description && (
-          <Text style={styles.setting__description}>{setting.description}</Text>
-        )}
-      </View>
+      <RenderSettingText
+        name={setting.name}
+        description={setting.description}
+      />
       <Switch style={{flex: 1}} />
+    </View>
+  ),
+
+  renderInput: (setting: SettingType) => (
+    <View style={styles.setting}>
+      <RenderSettingText
+        name={setting.name}
+        description={setting.description}
+      />
+      <TextInput style={{flex: 1}} keyboardType={setting.keyboardType} />
     </View>
   ),
 };
@@ -39,6 +65,9 @@ function renderSetting(setting: SettingType) {
   switch (setting.type) {
     case 'boolean':
       return renderers.renderSwitch(setting);
+    case 'number':
+    case 'string':
+      return renderers.renderInput(setting);
     default:
       return <Text>[Data type not supported]</Text>;
   }
