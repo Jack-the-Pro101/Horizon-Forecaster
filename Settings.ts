@@ -53,6 +53,18 @@ export const settings: SettingsSection[] = [
   },
 ];
 
-class SettingsManager {}
+class SettingsManager {
+  // private settingsMap;
+
+  constructor() {
+    // TODO: Convert settings to hashmap
+    // this.settingsMap = settings.map((setting) => {
+    //   return {
+    //     ...setting,
+    //     items: setting.items.reduce((obj, item) => (obj[item.id] = item, obj), {})
+    //   }
+    // })
+  }
+}
 
 export default new SettingsManager();

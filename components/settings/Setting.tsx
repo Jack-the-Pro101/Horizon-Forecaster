@@ -56,7 +56,11 @@ const renderers = {
         name={setting.name}
         description={setting.description}
       />
-      <TextInput style={{flex: 1}} keyboardType={setting.keyboardType} />
+      <TextInput
+        style={styles.setting__input}
+        keyboardType={setting.keyboardType}
+        value={setting.default.toString()}
+      />
     </View>
   ),
 };
@@ -118,6 +122,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    marginBottom: 16,
   },
 
   setting__text: {
@@ -132,5 +137,12 @@ const styles = StyleSheet.create({
   setting__description: {
     fontSize: 14,
     color: globalStyles.clrNeutral700,
+  },
+
+  setting__input: {
+    borderColor: globalStyles.clrNeutral300,
+    borderWidth: 1,
+    textAlign: 'center',
+    flex: 1,
   },
 });

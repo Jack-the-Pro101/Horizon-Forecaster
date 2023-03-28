@@ -72,6 +72,8 @@ export default function Home({navigation, route}: Props) {
         return;
       }
 
+      setRefreshing(true);
+
       const data = await Forecaster.getForecast();
 
       if (data == null) return; // TODO: Handle properly
