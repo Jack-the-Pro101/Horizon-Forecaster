@@ -15,6 +15,10 @@ import {Setting as SettingType} from '../../Settings';
 import {RootStackParamList, SettingsStackParamList} from '../../types';
 import Text from '../global/CustomText';
 
+import SettingsManager from '../../Settings';
+
+SettingsManager;
+
 type Props = CompositeScreenProps<
   NativeStackScreenProps<SettingsStackParamList, 'Setting'>,
   StackScreenProps<RootStackParamList>

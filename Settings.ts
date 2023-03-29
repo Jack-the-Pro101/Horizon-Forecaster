@@ -1,4 +1,5 @@
 import {KeyboardTypeOptions} from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export interface SettingsSection {
   displayTitle: string;
@@ -53,17 +54,43 @@ export const settings: SettingsSection[] = [
   },
 ];
 
+const storageKey = 'settings';
+
 class SettingsManager {
-  // private settingsMap;
+  settingsMap;
 
   constructor() {
-    // TODO: Convert settings to hashmap
-    // this.settingsMap = settings.map((setting) => {
-    //   return {
-    //     ...setting,
-    //     items: setting.items.reduce((obj, item) => (obj[item.id] = item, obj), {})
-    //   }
-    // })
+    this.settingsMap = settings
+      .map(setting => {
+        return {
+          ...setting,
+          items: setting.items.reduce(
+            // @ts-expect-error
+            (obj, item) => ((obj[item.id] = item), obj),
+            {},
+          ),
+        };
+      })
+      // @ts-expect-error
+      .reduce((obj, item) => ((obj[item.id] = item), obj), {});
+  }
+
+  async init() {
+    const savedSettings = await AsyncStorage.getItem(storageKey);
+
+    if (savedSettings == null) return;
+
+    this.settingsMap = {
+      ...this.settingsMap,
+      ...JSON.parse(savedSettings),
+    };
+  }
+
+  async editSetting(sectionId: string, settingId: string, value: any) {
+    // @ts-expect-error
+    this.settingsMap[sectionId][settingId] = value;
+
+    await AsyncStorage.setItem(storageKey, JSON.stringify(this.settingsMap));
   }
 }
 

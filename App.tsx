@@ -1,6 +1,11 @@
 import 'react-native-get-random-values';
 
-import React, {useEffect, useState, type PropsWithChildren} from 'react';
+import React, {
+  useEffect,
+  useLayoutEffect,
+  useState,
+  type PropsWithChildren,
+} from 'react';
 import {
   SafeAreaView,
   ScrollView,
@@ -30,7 +35,7 @@ import {
 } from './types';
 import locationManager, {LocationProfile} from './classes/LocationManager';
 
-import {settings} from './Settings';
+import SettingsManager from './Settings';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const LocationStack = createNativeStackNavigator<LocationStackParamList>();
@@ -71,6 +76,12 @@ function SettingsScreen() {
 }
 
 const App = () => {
+  useLayoutEffect(() => {
+    (async () => {
+      await SettingsManager.init();
+    })();
+  }, []);
+
   const isDark = useColorScheme() === 'dark';
 
   // TODO: Change to use my theme instead of default
