@@ -56,7 +56,7 @@ export default function Home({navigation, route}: Props) {
   const [weatherData, setWeatherData] = useState<RawWeatherData | null>(null);
   const [forecast, setForecast] = useState<ForecastResult | null>(null);
   const [refreshKey, setRefreshKey] = useState(false);
-  const [refreshing, setRefreshing] = useState(false);
+  const [refreshing, setRefreshing] = useState(true);
   const [lastRefresh, setLastRefresh] = useState<LastRefresh>({
     time: 0,
     locationId: '',
@@ -85,6 +85,7 @@ export default function Home({navigation, route}: Props) {
       const offsetSunrise = data.daily.sunrise[1] * 1000 + MINS_TO_MS * 10;
       const offsetSunset = data.daily.sunset[1] * 1000 + MINS_TO_MS * 10;
 
+      let shouldPredictTomorrow = false;
       const type =
         Math.abs(offsetSunrise - currentDate) <
         Math.abs(offsetSunset - currentDate)
@@ -92,7 +93,10 @@ export default function Home({navigation, route}: Props) {
             ? 'sunset'
             : 'sunrise'
           : currentDate > offsetSunset
-          ? 'sunrise'
+          ? ((): 'sunrise' => {
+              shouldPredictTomorrow = true;
+              return 'sunrise';
+            })()
           : 'sunset';
 
       // Math.abs(offsetSunrise - currentDate) <
@@ -101,7 +105,7 @@ export default function Home({navigation, route}: Props) {
       //   : 'sunset';
 
       const quality = Forecaster.calculateQuality(data, {
-        targetTime: data.daily[type][1],
+        targetTime: data.daily[type][1 + (shouldPredictTomorrow ? 1 : 0)],
       });
 
       const upcoming: UpcomingForecast[] = [];
