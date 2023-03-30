@@ -56,8 +56,13 @@ export const settings: SettingsSection[] = [
 
 const storageKey = 'settings';
 
+interface SettingsMap {
+  // @ts-expect-error
+  [key: string];
+}
+
 class SettingsManager {
-  settingsMap;
+  settingsMap: SettingsMap;
 
   constructor() {
     this.settingsMap = settings
@@ -87,7 +92,6 @@ class SettingsManager {
   }
 
   async editSetting(sectionId: string, settingId: string, value: any) {
-    // @ts-expect-error
     this.settingsMap[sectionId][settingId] = value;
 
     await AsyncStorage.setItem(storageKey, JSON.stringify(this.settingsMap));

@@ -11,11 +11,12 @@ import {
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import globalStyles, {stylesheet} from '../../Global.styles';
-import {Setting as SettingType} from '../../Settings';
+import {Setting as SettingType, SettingsSection} from '../../Settings';
 import {RootStackParamList, SettingsStackParamList} from '../../types';
 import Text from '../global/CustomText';
 
 import SettingsManager from '../../Settings';
+import {useEffect, useRef, useState} from 'react';
 
 SettingsManager;
 
@@ -44,17 +45,44 @@ function RenderSettingText({
 }
 
 const renderers = {
-  renderSwitch: (setting: SettingType) => (
-    <View style={styles.setting}>
-      <RenderSettingText
-        name={setting.name}
-        description={setting.description}
-      />
-      <Switch style={{flex: 1}} />
-    </View>
-  ),
+  renderSwitch: (setting: SettingType, section: SettingsSection) => {
+    const [value, setValue] = useState<boolean>(
+      SettingsManager.settingsMap[section.id][setting.id],
+    );
 
-  renderInput: (setting: SettingType) => (
+    const firstRun = useRef(true);
+
+    useEffect(() => {
+      if (firstRun.current) return;
+
+      (async () => {
+        firstRun.current = false;
+
+        await SettingsManager.editSetting(section.id, setting.id, value);
+      })();
+    }, [value]);
+
+    return (
+      <View style={styles.setting}>
+        <RenderSettingText
+          name={setting.name}
+          description={setting.description}
+        />
+        <Switch
+          style={{flex: 1}}
+          trackColor={{
+            true: globalStyles.clrPrimary300,
+            false: globalStyles.clrPrimary200,
+          }}
+          thumbColor={globalStyles.clrPrimary500}
+          value={value}
+          onValueChange={() => setValue(val => !val)}
+        />
+      </View>
+    );
+  },
+
+  renderInput: (setting: SettingType, section: SettingsSection) => (
     <View style={styles.setting}>
       <RenderSettingText
         name={setting.name}
@@ -69,13 +97,13 @@ const renderers = {
   ),
 };
 
-function renderSetting(setting: SettingType) {
+function renderSetting(setting: SettingType, settingSection: SettingsSection) {
   switch (setting.type) {
     case 'boolean':
-      return renderers.renderSwitch(setting);
+      return renderers.renderSwitch(setting, settingSection);
     case 'number':
     case 'string':
-      return renderers.renderInput(setting);
+      return renderers.renderInput(setting, settingSection);
     default:
       return <Text>[Data type not supported]</Text>;
   }
@@ -109,7 +137,7 @@ export default function Setting({navigation, route}: Props) {
           style={styles.settings}
           data={setting.items}
           keyExtractor={item => item.id}
-          renderItem={info => renderSetting(info.item)}
+          renderItem={info => renderSetting(info.item, setting)}
         />
       </View>
     </>
