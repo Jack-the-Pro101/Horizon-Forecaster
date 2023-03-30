@@ -16,7 +16,7 @@ import {RootStackParamList, SettingsStackParamList} from '../../types';
 import Text from '../global/CustomText';
 
 import SettingsManager from '../../Settings';
-import {useEffect, useRef, useState} from 'react';
+import {SetStateAction, useEffect, useRef, useState} from 'react';
 
 SettingsManager;
 
@@ -45,22 +45,8 @@ function RenderSettingText({
 }
 
 const renderers = {
-  renderSwitch: (setting: SettingType, section: SettingsSection) => {
-    const [value, setValue] = useState<boolean>(
-      SettingsManager.settingsMap[section.id][setting.id],
-    );
-
-    const firstRun = useRef(true);
-
-    useEffect(() => {
-      if (firstRun.current) return;
-
-      (async () => {
-        firstRun.current = false;
-
-        await SettingsManager.editSetting(section.id, setting.id, value);
-      })();
-    }, [value]);
+  renderSwitch: (setting: SettingType, section: SettingsSection, settingsState: [any, SetStateAction<any>]) => {
+    const [state, updateState] = settingsState;
 
     return (
       <View style={styles.setting}>
@@ -75,8 +61,12 @@ const renderers = {
             false: globalStyles.clrPrimary200,
           }}
           thumbColor={globalStyles.clrPrimary500}
-          value={value}
-          onValueChange={() => setValue(val => !val)}
+          value={state[section.id][setting.id]}
+          onValueChange={() => updateState((value: any) => {
+            value[section.id][setting.id] = !value[section.id][setting.id];
+
+            return value;
+          })}
         />
       </View>
     );
@@ -97,10 +87,10 @@ const renderers = {
   ),
 };
 
-function renderSetting(setting: SettingType, settingSection: SettingsSection) {
+function renderSetting(setting: SettingType, settingSection: SettingsSection, state: [any, SetStateAction<any>]) {
   switch (setting.type) {
     case 'boolean':
-      return renderers.renderSwitch(setting, settingSection);
+      return renderers.renderSwitch(setting, settingSection, state);
     case 'number':
     case 'string':
       return renderers.renderInput(setting, settingSection);
@@ -111,6 +101,8 @@ function renderSetting(setting: SettingType, settingSection: SettingsSection) {
 
 export default function Setting({navigation, route}: Props) {
   const setting = route.params;
+
+  const settingsState = useState(SettingsManager.settingsMap);
 
   return (
     <>
@@ -137,7 +129,7 @@ export default function Setting({navigation, route}: Props) {
           style={styles.settings}
           data={setting.items}
           keyExtractor={item => item.id}
-          renderItem={info => renderSetting(info.item, setting)}
+          renderItem={info => renderSetting(info.item, setting, settingsState)}
         />
       </View>
     </>
