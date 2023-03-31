@@ -45,7 +45,11 @@ function RenderSettingText({
 }
 
 const renderers = {
-  renderSwitch: (setting: SettingType, section: SettingsSection, settingsState: [any, SetStateAction<any>]) => {
+  renderSwitch: (
+    setting: SettingType,
+    section: SettingsSection,
+    settingsState: [any, SetStateAction<any>],
+  ) => {
     const [state, updateState] = settingsState;
 
     return (
@@ -61,12 +65,20 @@ const renderers = {
             false: globalStyles.clrPrimary200,
           }}
           thumbColor={globalStyles.clrPrimary500}
-          value={state[section.id][setting.id]}
-          onValueChange={() => updateState((value: any) => {
-            value[section.id][setting.id] = !value[section.id][setting.id];
+          value={state[section.id]['items'][setting.id].value}
+          onValueChange={() =>
+            updateState((value: any) => {
+              const newValue = !value[section.id]['items'][setting.id].value;
 
-            return value;
-          })}
+              const newObject = {
+                ...value,
+              };
+
+              newObject[section.id]['items'][setting.id].value = newValue;
+
+              return newObject;
+            })
+          }
         />
       </View>
     );
@@ -87,7 +99,11 @@ const renderers = {
   ),
 };
 
-function renderSetting(setting: SettingType, settingSection: SettingsSection, state: [any, SetStateAction<any>]) {
+function renderSetting(
+  setting: SettingType,
+  settingSection: SettingsSection,
+  state: [any, SetStateAction<any>],
+) {
   switch (setting.type) {
     case 'boolean':
       return renderers.renderSwitch(setting, settingSection, state);

@@ -69,11 +69,14 @@ class SettingsManager {
       .map(setting => {
         return {
           ...setting,
-          items: setting.items.reduce(
+          items: setting.items.reduce((obj, item) => {
             // @ts-expect-error
-            (obj, item) => ((obj[item.id] = item), obj),
-            {},
-          ),
+            item.value = item.default;
+            // @ts-expect-error
+            obj[item.id] = item;
+
+            return obj;
+          }, {}),
         };
       })
       // @ts-expect-error
@@ -92,7 +95,7 @@ class SettingsManager {
   }
 
   async editSetting(sectionId: string, settingId: string, value: any) {
-    this.settingsMap[sectionId][settingId] = value;
+    this.settingsMap[sectionId][settingId].value = value;
 
     await AsyncStorage.setItem(storageKey, JSON.stringify(this.settingsMap));
   }
