@@ -66,18 +66,13 @@ const renderers = {
           }}
           thumbColor={globalStyles.clrPrimary500}
           value={state[section.id]['items'][setting.id].value}
-          onValueChange={() =>
-            updateState((value: any) => {
-              const newValue = !value[section.id]['items'][setting.id].value;
+          onValueChange={() => {
+            const newState = updateState((value: any) => SettingsManager.editSetting(section.id, setting.id, value))
+            
+            SettingsManager.saveSettings();
 
-              const newObject = {
-                ...value,
-              };
-
-              newObject[section.id]['items'][setting.id].value = newValue;
-
-              return newObject;
-            })
+            return newState;
+          }
           }
         />
       </View>

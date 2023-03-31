@@ -94,9 +94,19 @@ class SettingsManager {
     };
   }
 
-  async editSetting(sectionId: string, settingId: string, value: any) {
-    this.settingsMap[sectionId][settingId].value = value;
+  editSetting(sectionId: string, settingId: string, value: any) {
+    const newValue = !value[sectionId]['items'][settingId].value;
 
+    const newObject = {
+      ...value,
+    };
+
+    newObject[sectionId]['items'][settingId].value = newValue;
+
+    return newObject;
+  }
+
+  async saveSettings() {
     await AsyncStorage.setItem(storageKey, JSON.stringify(this.settingsMap));
   }
 }
