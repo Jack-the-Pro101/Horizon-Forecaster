@@ -44,12 +44,17 @@ function RenderSettingText({
   );
 }
 
-const renderers = {
-  renderSwitch: (
-    setting: SettingType,
-    section: SettingsSection,
-    settingsState: [any, SetStateAction<any>],
-  ) => {
+type SettingsRenderFunction = (
+  setting: SettingType,
+  section: SettingsSection,
+  settingsState: [any, SetStateAction<any>],
+) => JSX.Element;
+
+const renderers: {
+  renderSwitch: SettingsRenderFunction;
+  renderInput: SettingsRenderFunction;
+} = {
+  renderSwitch: (setting, section, settingsState) => {
     const [state, updateState] = settingsState;
 
     return (
@@ -67,31 +72,49 @@ const renderers = {
           thumbColor={globalStyles.clrPrimary500}
           value={state[section.id]['items'][setting.id].value}
           onValueChange={() => {
-            const newState = updateState((value: any) => SettingsManager.editSetting(section.id, setting.id, value))
-            
+            const newState = updateState((value: any) =>
+              SettingsManager.editSetting(section.id, setting.id, value),
+            );
+
             SettingsManager.saveSettings();
 
             return newState;
-          }
-          }
+          }}
         />
       </View>
     );
   },
 
-  renderInput: (setting: SettingType, section: SettingsSection) => (
-    <View style={styles.setting}>
-      <RenderSettingText
-        name={setting.name}
-        description={setting.description}
-      />
-      <TextInput
-        style={styles.setting__input}
-        keyboardType={setting.keyboardType}
-        value={setting.default.toString()}
-      />
-    </View>
-  ),
+  renderInput: (setting, section, settingsState) => {
+    const [state, updateState] = settingsState;
+
+    return (
+      <View style={styles.setting}>
+        <RenderSettingText
+          name={setting.name}
+          description={setting.description}
+        />
+        <TextInput
+          style={styles.setting__input}
+          keyboardType={setting.keyboardType}
+          value={state[section.id]['items'][setting.id].value.toString()}
+          onEndEditing={e => {
+            const newState = updateState((value: any) => {
+              SettingsManager.editSetting(
+                section.id,
+                setting.id,
+                e.target.toString(),
+              );
+
+              SettingsManager.saveSettings();
+
+              return newState;
+            });
+          }}
+        />
+      </View>
+    );
+  },
 };
 
 function renderSetting(
@@ -104,7 +127,7 @@ function renderSetting(
       return renderers.renderSwitch(setting, settingSection, state);
     case 'number':
     case 'string':
-      return renderers.renderInput(setting, settingSection);
+      return renderers.renderInput(setting, settingSection, state);
     default:
       return <Text>[Data type not supported]</Text>;
   }

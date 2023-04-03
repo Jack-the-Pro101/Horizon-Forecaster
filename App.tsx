@@ -20,7 +20,6 @@ import Text from './components/global/CustomText';
 
 import {NavigationContainer, DefaultTheme} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import {createDrawerNavigator} from '@react-navigation/drawer';
 
 import HomeScreen from './components/home/Index';
 import Forecasts from './components/home/Forecasts';
@@ -40,7 +39,6 @@ import locationManager, {LocationProfile} from './classes/LocationManager';
 import SettingsManager from './Settings';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
-const Drawer = createDrawerNavigator();
 const LocationStack = createNativeStackNavigator<LocationStackParamList>();
 const SettingsStack = createNativeStackNavigator<SettingsStackParamList>();
 
@@ -129,9 +127,7 @@ const App = () => {
         theme={NavigationDarkTheme}
         fallback={<Text>Loading</Text>}>
         <LocationContext.Provider value={{location, setLocation}}>
-          <Drawer.Navigator initialRouteName="Home">
-            <Drawer.Screen name="Home" component={HomeStackScreen} />
-          </Drawer.Navigator>
+          <HomeStackScreen />
         </LocationContext.Provider>
       </NavigationContainer>
     </>
