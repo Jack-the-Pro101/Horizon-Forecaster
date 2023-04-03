@@ -9,6 +9,10 @@ export type RootStackParamList = {
   Settings: undefined;
 };
 
+export type DrawerStackParamList = {
+  Home: undefined;
+};
+
 export type LocationStackParamList = {
   Asdf: NavigatorScreenParams<RootStackParamList>;
   Index: CoreGeocodeLocation | undefined;

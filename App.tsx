@@ -1,3 +1,4 @@
+import 'react-native-gesture-handler';
 import 'react-native-get-random-values';
 
 import React, {
@@ -19,6 +20,7 @@ import Text from './components/global/CustomText';
 
 import {NavigationContainer, DefaultTheme} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import {createDrawerNavigator} from '@react-navigation/drawer';
 
 import HomeScreen from './components/home/Index';
 import Forecasts from './components/home/Forecasts';
@@ -38,6 +40,7 @@ import locationManager, {LocationProfile} from './classes/LocationManager';
 import SettingsManager from './Settings';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
+const Drawer = createDrawerNavigator();
 const LocationStack = createNativeStackNavigator<LocationStackParamList>();
 const SettingsStack = createNativeStackNavigator<SettingsStackParamList>();
 
@@ -75,6 +78,27 @@ function SettingsScreen() {
   );
 }
 
+function HomeStackScreen() {
+  return (
+    <Stack.Navigator
+      initialRouteName="Home"
+      screenOptions={{headerShown: false}}>
+      <Stack.Screen name="Home" component={HomeScreen} />
+      <Stack.Screen name="Forecasts" component={Forecasts} />
+      <Stack.Screen
+        name="Settings"
+        component={SettingsScreen}
+        options={{animation: 'slide_from_left'}}
+      />
+      <Stack.Screen
+        name="Locations"
+        component={LocationScreen}
+        options={{animation: 'slide_from_right'}}
+      />
+    </Stack.Navigator>
+  );
+}
+
 const App = () => {
   useLayoutEffect(() => {
     (async () => {
@@ -105,22 +129,9 @@ const App = () => {
         theme={NavigationDarkTheme}
         fallback={<Text>Loading</Text>}>
         <LocationContext.Provider value={{location, setLocation}}>
-          <Stack.Navigator
-            initialRouteName="Home"
-            screenOptions={{headerShown: false}}>
-            <Stack.Screen name="Home" component={HomeScreen} />
-            <Stack.Screen name="Forecasts" component={Forecasts} />
-            <Stack.Screen
-              name="Settings"
-              component={SettingsScreen}
-              options={{animation: 'slide_from_left'}}
-            />
-            <Stack.Screen
-              name="Locations"
-              component={LocationScreen}
-              options={{animation: 'slide_from_right'}}
-            />
-          </Stack.Navigator>
+          <Drawer.Navigator initialRouteName="Home">
+            <Drawer.Screen name="Home" component={HomeStackScreen} />
+          </Drawer.Navigator>
         </LocationContext.Provider>
       </NavigationContainer>
     </>
