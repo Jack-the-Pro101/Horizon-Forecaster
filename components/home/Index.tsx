@@ -156,14 +156,29 @@ export default function Home({navigation, route}: Props) {
       onOpen={() => setDrawerOpen(true)}
       onClose={() => setDrawerOpen(false)}
       drawerStyle={{backgroundColor: globalStyles.clrNeutral100}}
-      renderDrawerContent={() => {
-        return <Text>Drawer content</Text>;
-      }}>
+      renderDrawerContent={() => (
+        <View style={stylesheet.drawer}>
+          <Text style={stylesheet.drawer__title} fontWeight={600}>Horizon - Forecaster</Text>
+
+          <ScrollView style={stylesheet.drawer__items}>
+            <TouchableOpacity style={stylesheet.drawer__item} onPress={() => navigation.navigate("Settings")}>
+              <Ionicons name="settings" size={24} style={stylesheet.drawer__icon}/>
+              <Text style={stylesheet.drawer__text}>Settings</Text>
+              <Ionicons name="chevron-forward" size={24} style={stylesheet["drawer__icon-arrow"]} />
+            </TouchableOpacity>
+            <TouchableOpacity style={stylesheet.drawer__item}>
+              <Ionicons name="information-circle" size={24} style={stylesheet.drawer__icon} />
+              <Text style={stylesheet.drawer__text}>About</Text>
+              <Ionicons name="chevron-forward" size={24} style={stylesheet["drawer__icon-arrow"]} />
+            </TouchableOpacity>
+          </ScrollView>
+        </View>
+      )}>
       <View style={stylesheet.navbar}>
         <View style={stylesheet.navbar__content}>
           <TouchableOpacity
             activeOpacity={0.7}
-            onPress={() => navigation.navigate('Settings')}>
+            onPress={() => setDrawerOpen(true)}>
             <AntDesignIcons name="bars" size={32} />
           </TouchableOpacity>
           <TouchableOpacity

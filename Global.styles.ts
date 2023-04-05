@@ -278,6 +278,44 @@ export const stylesheet = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
+
+  drawer: {
+    flex: 1,
+    display: 'flex',
+    padding: 8,
+  },
+
+  drawer__title: {
+    textAlign: 'center',
+    color: styles.clrNeutral900,
+    fontSize: 18,
+    marginVertical: 24,
+  },
+
+  drawer__items: {},
+
+  drawer__item: {
+    paddingVertical: 12,
+    borderRadius: 2,
+    borderWidth: 1,
+    marginTop: 4,
+    borderColor: styles.clrNeutral400,
+    padding: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+
+  drawer__text: {
+    color: styles.clrNeutral900,
+  },
+
+  drawer__icon: {
+    marginRight: 4,
+  },
+
+  'drawer__icon-arrow': {
+    marginLeft: 'auto',
+  },
 });
 
 export default styles;
