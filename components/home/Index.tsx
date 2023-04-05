@@ -31,6 +31,8 @@ import locationManager from '../../classes/LocationManager';
 import {LocationContext} from '../../App';
 import {Drawer} from 'react-native-drawer-layout';
 
+import {BackHandler} from 'react-native';
+
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
 interface LastRefresh {
@@ -150,6 +152,23 @@ export default function Home({navigation, route}: Props) {
     })();
   }, [location, refreshKey]);
 
+  useEffect(() => {
+    function handleBack() {
+      if (drawerOpen) {
+        setDrawerOpen(false);
+        return true;
+      }
+      return false;
+    }
+
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      handleBack,
+    );
+
+    return () => backHandler.remove();
+  }, [drawerOpen]);
+
   return (
     <Drawer
       open={drawerOpen}
@@ -158,18 +177,38 @@ export default function Home({navigation, route}: Props) {
       drawerStyle={{backgroundColor: globalStyles.clrNeutral100}}
       renderDrawerContent={() => (
         <View style={stylesheet.drawer}>
-          <Text style={stylesheet.drawer__title} fontWeight={600}>Horizon - Forecaster</Text>
+          <Text style={stylesheet.drawer__title} fontWeight={600}>
+            Horizon - Forecaster
+          </Text>
 
           <ScrollView style={stylesheet.drawer__items}>
-            <TouchableOpacity style={stylesheet.drawer__item} onPress={() => navigation.navigate("Settings")}>
-              <Ionicons name="settings" size={24} style={stylesheet.drawer__icon}/>
+            <TouchableOpacity
+              style={stylesheet.drawer__item}
+              onPress={() => navigation.navigate('Settings')}>
+              <Ionicons
+                name="settings"
+                size={24}
+                style={stylesheet.drawer__icon}
+              />
               <Text style={stylesheet.drawer__text}>Settings</Text>
-              <Ionicons name="chevron-forward" size={24} style={stylesheet["drawer__icon-arrow"]} />
+              <Ionicons
+                name="chevron-forward"
+                size={24}
+                style={stylesheet['drawer__icon-arrow']}
+              />
             </TouchableOpacity>
             <TouchableOpacity style={stylesheet.drawer__item}>
-              <Ionicons name="information-circle" size={24} style={stylesheet.drawer__icon} />
+              <Ionicons
+                name="information-circle"
+                size={24}
+                style={stylesheet.drawer__icon}
+              />
               <Text style={stylesheet.drawer__text}>About</Text>
-              <Ionicons name="chevron-forward" size={24} style={stylesheet["drawer__icon-arrow"]} />
+              <Ionicons
+                name="chevron-forward"
+                size={24}
+                style={stylesheet['drawer__icon-arrow']}
+              />
             </TouchableOpacity>
           </ScrollView>
         </View>
