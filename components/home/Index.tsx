@@ -29,6 +29,7 @@ import {
 import Forecaster from '../../classes/Forecaster';
 import locationManager from '../../classes/LocationManager';
 import {LocationContext} from '../../App';
+import {Drawer} from 'react-native-drawer-layout';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
@@ -61,6 +62,7 @@ export default function Home({navigation, route}: Props) {
     time: 0,
     locationId: '',
   });
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -149,7 +151,14 @@ export default function Home({navigation, route}: Props) {
   }, [location, refreshKey]);
 
   return (
-    <>
+    <Drawer
+      open={drawerOpen}
+      onOpen={() => setDrawerOpen(true)}
+      onClose={() => setDrawerOpen(false)}
+      drawerStyle={{backgroundColor: globalStyles.clrNeutral100}}
+      renderDrawerContent={() => {
+        return <Text>Drawer content</Text>;
+      }}>
       <View style={stylesheet.navbar}>
         <View style={stylesheet.navbar__content}>
           <TouchableOpacity
@@ -283,7 +292,7 @@ export default function Home({navigation, route}: Props) {
           <Text>Made by: Emperor of Bluegaria</Text>
         </View>
       </ScrollView>
-    </>
+    </Drawer>
   );
 }
 
