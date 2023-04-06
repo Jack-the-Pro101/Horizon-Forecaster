@@ -161,12 +161,21 @@ export default function Home({navigation, route}: Props) {
       return false;
     }
 
+    function closeDrawer() {
+      setDrawerOpen(false);
+    }
+
     const backHandler = BackHandler.addEventListener(
       'hardwareBackPress',
       handleBack,
     );
 
-    return () => backHandler.remove();
+    navigation.addListener('blur', closeDrawer);
+
+    return () => {
+      backHandler.remove();
+      navigation.removeListener('blur', closeDrawer);
+    };
   }, [drawerOpen]);
 
   return (
@@ -276,7 +285,9 @@ export default function Home({navigation, route}: Props) {
             <View style={styles.section__item}>
               <Text fontWeight={400}>Sunrise</Text>
 
-              <Text style={{fontSize: 22}} fontWeight={500}>
+              <Text
+                style={{fontSize: 22, color: globalStyles.clrNeutral800}}
+                fontWeight={500}>
                 {weatherData == null
                   ? '...'
                   : timeFormatter.format(weatherData.daily.sunrise[1] * 1000)}
@@ -285,7 +296,9 @@ export default function Home({navigation, route}: Props) {
             <View style={styles.section__item}>
               <Text fontWeight={400}>Sunset</Text>
 
-              <Text style={{fontSize: 22}} fontWeight={500}>
+              <Text
+                style={{fontSize: 22, color: globalStyles.clrNeutral800}}
+                fontWeight={500}>
                 {weatherData == null
                   ? '...'
                   : timeFormatter.format(weatherData.daily.sunset[1] * 1000)}
