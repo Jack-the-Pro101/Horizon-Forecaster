@@ -9,7 +9,7 @@ type WeightMap = {[key: string]: number};
 
 const weightMap: WeightMap = {
   moisture: 120,
-  cloudcover: 70,
+  cloudcover: 85,
   windspeed: 50,
   visibility: 70,
   rain: 90,
@@ -167,7 +167,6 @@ class Forecaster {
                     )!.data;
 
                     const cloudcovers = [
-                      data[targetTime - 1],
                       data[targetTime],
                       data[targetTime + 1],
                     ];
@@ -175,7 +174,7 @@ class Forecaster {
                     let accumWeight = 0;
 
                     for (const cloudcover of cloudcovers) {
-                      accumWeight += numberPercentProximity(cloudcover, 70);
+                      accumWeight += numberPercentProximity(cloudcover, 87);
                     }
 
                     accumWeight /= cloudcovers.length;
@@ -200,7 +199,6 @@ class Forecaster {
                     )!.data;
 
                     const cloudcovers = [
-                      data[targetTime - 1],
                       data[targetTime],
                       data[targetTime + 1],
                     ];
@@ -208,7 +206,7 @@ class Forecaster {
                     let accumWeight = 0;
 
                     for (const cloudcover of cloudcovers) {
-                      accumWeight += numberPercentProximity(cloudcover, 35);
+                      accumWeight += numberPercentProximity(cloudcover, 15);
                     }
 
                     accumWeight /= cloudcovers.length;
@@ -233,7 +231,6 @@ class Forecaster {
                     )!.data;
 
                     const cloudcovers = [
-                      data[targetTime - 1],
                       data[targetTime],
                       data[targetTime + 1],
                     ];
@@ -300,7 +297,6 @@ class Forecaster {
                     )!.data;
 
                     const moisturesLow = [
-                      data[targetTime - 1],
                       data[targetTime],
                       data[targetTime + 1],
                     ];
@@ -308,7 +304,7 @@ class Forecaster {
                     let accumWeight = 0;
 
                     for (const moisture of moisturesLow) {
-                      accumWeight += numberPercentProximity(moisture, 10);
+                      accumWeight += numberPercentProximity(moisture, 40);
                     }
 
                     accumWeight /= moisturesLow.length;
@@ -330,7 +326,6 @@ class Forecaster {
                     )!.data;
 
                     const moisturesMid = [
-                      data[targetTime - 1],
                       data[targetTime],
                       data[targetTime + 1],
                     ];
@@ -338,7 +333,7 @@ class Forecaster {
                     let accumWeight = 0;
 
                     for (const moisture of moisturesMid) {
-                      accumWeight += numberPercentProximity(moisture, 10);
+                      accumWeight += numberPercentProximity(moisture, 15);
                     }
 
                     accumWeight /= moisturesMid.length;
@@ -360,7 +355,6 @@ class Forecaster {
                     )!.data;
 
                     const moisturesHigh = [
-                      data[targetTime - 1],
                       data[targetTime],
                       data[targetTime + 1],
                     ];
@@ -368,7 +362,7 @@ class Forecaster {
                     let accumWeight = 0;
 
                     for (const moisture of moisturesHigh) {
-                      accumWeight += numberPercentProximity(moisture, 5);
+                      accumWeight += numberPercentProximity(moisture, 3);
                     }
 
                     accumWeight /= moisturesHigh.length;
@@ -408,16 +402,12 @@ class Forecaster {
               (a, b) => a - b,
             );
 
-            const visibilities = [
-              data[targetIndex - 1],
-              data[targetIndex],
-              data[targetIndex + 1],
-            ];
+            const visibilities = [data[targetIndex], data[targetIndex + 1]];
 
             let accumWeight = 0;
 
             for (const visibility of visibilities) {
-              accumWeight += Math.min(visibility / 3500, 1);
+              accumWeight += Math.min(visibility / 16000, 1);
             }
 
             accumWeight /= visibilities.length;

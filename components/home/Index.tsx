@@ -86,8 +86,8 @@ export default function Home({navigation, route}: Props) {
 
       const currentDate = Date.now();
 
-      const offsetSunrise = data.daily.sunrise[1] * 1000 + MINS_TO_MS * 10;
-      const offsetSunset = data.daily.sunset[1] * 1000 + MINS_TO_MS * 10;
+      const offsetSunrise = data.daily.sunrise[1] * 1000 + MINS_TO_MS * 15;
+      const offsetSunset = data.daily.sunset[1] * 1000 + MINS_TO_MS * 15;
 
       let shouldPredictTomorrow = false;
       const type =

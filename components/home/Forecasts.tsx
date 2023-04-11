@@ -76,7 +76,7 @@ export default function Forecasts({navigation, route}: Props) {
         style={styles.forecast__list}
         sections={renderedForecast}
         renderSectionHeader={({section}) => (
-          <Text style={styles.forecast__heading}>
+          <Text style={styles.forecast__heading} fontWeight={500}>
             {dateFormatter.format(section.time * 1000)}
           </Text>
         )}
@@ -109,7 +109,8 @@ const styles = StyleSheet.create({
 
   forecast__heading: {
     marginTop: 6,
-    paddingTop: 6,
+    paddingTop: 10,
+    fontSize: 16,
     borderBottomColor: globalStyles.clrNeutral200,
     borderBottomWidth: 1,
   },
