@@ -72,13 +72,16 @@ const renderers: {
           thumbColor={globalStyles.clrPrimary500}
           value={state[section.id]['items'][setting.id].value}
           onValueChange={() => {
-            const newState = updateState((value: any) =>
-              SettingsManager.editSetting(section.id, setting.id, value),
+            updateState((value: any) =>
+              SettingsManager.editSetting(
+                section.id,
+                setting.id,
+                value,
+                !value[section.id]['items'][setting.id].value,
+              ),
             );
 
             SettingsManager.saveSettings();
-
-            return newState;
           }}
         />
       </View>
@@ -98,17 +101,23 @@ const renderers: {
           style={styles.setting__input}
           keyboardType={setting.keyboardType}
           value={state[section.id]['items'][setting.id].value.toString()}
+          onChangeText={text => {
+            updateState((value: any) =>
+              SettingsManager.editSetting(section.id, setting.id, value, text),
+            );
+          }}
           onEndEditing={e => {
-            const newState = updateState((value: any) => {
-              SettingsManager.editSetting(
+            updateState((value: any) => {
+              const updatedValue = SettingsManager.editSetting(
                 section.id,
                 setting.id,
-                e.target.toString(),
+                value,
+                e.nativeEvent.text,
               );
 
               SettingsManager.saveSettings();
 
-              return newState;
+              return updatedValue;
             });
           }}
         />

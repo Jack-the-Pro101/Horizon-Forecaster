@@ -94,11 +94,14 @@ class SettingsManager {
     };
   }
 
-  editSetting(sectionId: string, settingId: string, value: any) {
-    const newValue = !value[sectionId]['items'][settingId].value;
-
+  editSetting(
+    sectionId: string,
+    settingId: string,
+    currentState: any,
+    newValue: any,
+  ) {
     const newObject = {
-      ...value,
+      ...currentState,
     };
 
     newObject[sectionId]['items'][settingId].value = newValue;
