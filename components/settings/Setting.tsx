@@ -112,7 +112,7 @@ const renderers: {
                 section.id,
                 setting.id,
                 value,
-                e.nativeEvent.text,
+                Number(e.nativeEvent.text),
               );
 
               SettingsManager.saveSettings();

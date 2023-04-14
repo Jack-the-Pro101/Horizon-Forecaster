@@ -114,7 +114,7 @@ export default function Home({navigation, route}: Props) {
 
       const upcoming: UpcomingForecast[] = [];
 
-      for (let i = 1; i < 7; i++) {
+      for (let i = 1; i < 8; i++) {
         const upcomingSunrise = Forecaster.calculateQuality(data, {
           targetTime: data.daily.sunrise[i],
         });
@@ -268,7 +268,7 @@ export default function Home({navigation, route}: Props) {
             <Text style={styles.forecast__text} fontWeight={600}>
               {forecast?.current == null
                 ? '...'
-                : (forecast.current.quality * 100).toFixed(1)}
+                : (forecast.current.quality * 100).toFixed(0)}
               %
             </Text>
             <Text style={styles.forecast__subtext}>
@@ -328,30 +328,17 @@ export default function Home({navigation, route}: Props) {
                 <Text>Loading...</Text>
               </View>
             ) : (
-              <>
+              forecast.upcoming.slice(2, 5).map(forecast => (
                 <View style={styles.forecasts__item}>
                   <Text style={styles.forecasts__title}>
-                    {dateFormatter.format(forecast.upcoming[1].date * 1000)}
+                    {dateFormatter.format(forecast.date * 1000)}
                   </Text>
                   <Text style={styles.forecasts__result} fontWeight={600}>
-                    {(forecast.upcoming[1].quality * 100).toFixed(1)}%
+                    {(forecast.quality * 100).toFixed(0)}%
                   </Text>
-                  <Text style={styles.forecasts__time}>
-                    {forecast.upcoming[1].type}
-                  </Text>
+                  <Text style={styles.forecasts__time}>{forecast.type}</Text>
                 </View>
-                <View style={styles.forecasts__item}>
-                  <Text style={styles.forecasts__title}>
-                    {dateFormatter.format(forecast.upcoming[2].date * 1000)}
-                  </Text>
-                  <Text style={styles.forecasts__result} fontWeight={600}>
-                    {(forecast.upcoming[2].quality * 100).toFixed(1)}%
-                  </Text>
-                  <Text style={styles.forecasts__time}>
-                    {forecast.upcoming[2].type}
-                  </Text>
-                </View>
-              </>
+              ))
             )}
           </View>
         </TouchableOpacity>

@@ -94,6 +94,8 @@ class SettingsManager {
     };
   }
 
+  resetSettings() {}
+
   editSetting(
     sectionId: string,
     settingId: string,

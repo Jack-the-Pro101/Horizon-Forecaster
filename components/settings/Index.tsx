@@ -1,12 +1,20 @@
 import {CompositeScreenProps} from '@react-navigation/native';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {StackScreenProps} from '@react-navigation/stack';
-import {FlatList, StyleSheet, TouchableOpacity, View} from 'react-native';
+import {
+  Alert,
+  FlatList,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import globalStyles, {stylesheet} from '../../Global.styles';
 import {settings} from '../../Settings';
 import {RootStackParamList, SettingsStackParamList} from '../../types';
 import Text from '../global/CustomText';
+
+import SettingsManager from '../../Settings';
 
 type Props = CompositeScreenProps<
   NativeStackScreenProps<SettingsStackParamList, 'Index'>,
@@ -54,6 +62,29 @@ export default function Settings({navigation}: Props) {
             </TouchableOpacity>
           )}
         />
+
+        <View style={styles.reset}>
+          <TouchableOpacity
+            style={styles.reset__btn}
+            onPress={() =>
+              Alert.alert(
+                'Confirm Resets',
+                'Are you sure you want to reset all settings to their defaults?',
+                [
+                  {
+                    text: 'Yes',
+                    isPreferred: true,
+                    onPress: SettingsManager.resetSettings,
+                  },
+                  {
+                    text: 'No',
+                  },
+                ],
+              )
+            }>
+            <Text style={styles.reset__text}>Reset Defaults</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </>
   );
@@ -72,5 +103,22 @@ const styles = StyleSheet.create({
   setting__title: {
     fontSize: 16,
     color: globalStyles.clrNeutral900,
+  },
+
+  reset: {
+    alignItems: 'center',
+  },
+
+  reset__btn: {
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: globalStyles.clrDanger500,
+  },
+
+  reset__text: {
+    color: globalStyles.clrDanger500,
+    fontSize: 16,
   },
 });
