@@ -173,8 +173,20 @@ class Forecaster {
 
                     let accumWeight = 0;
 
+                    function expoParabolaGenerator(input: number): number {
+                      if (input > 85) {
+                        // Use parabola, vertex form
+
+                        return ((-1 * (input - 90)) ^ (2 + 100)) / 100;
+                      } else {
+                        // Exponential function: f(x) = 1.06^x
+
+                        return Math.min(1.053 ^ input, 100) / 100;
+                      }
+                    }
+
                     for (const cloudcover of cloudcovers) {
-                      accumWeight += numberPercentProximity(cloudcover, 87);
+                      accumWeight += expoParabolaGenerator(cloudcover);
                     }
 
                     accumWeight /= cloudcovers.length;
