@@ -54,6 +54,27 @@ function numberPercentProximity(
   );
 }
 
+type WeightAdjusterFunction = (adjustments: WeightMap, data: any) => void;
+
+function dynamicWeightAdjuster(
+  map: WeightMap,
+  values: SortedWeightFunctionData[],
+  adjustmentFunctions: {[key: string]: WeightAdjusterFunction},
+) {
+  const adjustments = {...map};
+  for (const key in adjustments) {
+    adjustments[key] = 1;
+  }
+
+  for (const value of values) {
+    adjustmentFunctions[value.type](adjustments, values);
+  }
+
+  for (const key in adjustments) {
+    map[key] *= adjustments[key];
+  }
+}
+
 interface ForecastCalculationOptions {
   targetTime: number;
 }
@@ -153,6 +174,10 @@ class Forecaster {
               cloudcover_low: 87,
             };
 
+            dynamicWeightAdjuster(cloudCoverWeightMap, data, {
+              cloudcover_high: (adjustments, data: any) => {},
+            });
+
             const calculator = new ForecastFactory(
               cloudCoverWeightMap,
               [
@@ -179,7 +204,7 @@ class Forecaster {
 
                         return ((-1 * (input - 90)) ^ (2 + 100)) / 100;
                       } else {
-                        // Exponential function: f(x) = 1.06^x
+                        // Exponential function: f(x)
 
                         return Math.min(1.053 ^ input, 100) / 100;
                       }
