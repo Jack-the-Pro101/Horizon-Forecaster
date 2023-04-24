@@ -175,7 +175,18 @@ class Forecaster {
             };
 
             dynamicWeightAdjuster(cloudCoverWeightMap, data, {
-              cloudcover_high: (adjustments, data: any) => {},
+              cloudcover_high: (adjustments, data: any) => {
+                const totalCloudCover = data["cloudcover_low"] + data["cloudcover_mid"];
+
+                if (totalCloudCover > 110) {
+                  // TODO: adjust this
+                  adjustments["cloudcover_high"] -= Math.max(1 - numberPercentProximity(data["cloudcover_low"], 20), 0);
+                }else {
+                  adjustments["cloudcover_high"] -= Math.max(1 - numberPercentProximity(data["cloudcover_low"], 20) / 2, 0);
+                  adjustments["cloudcover_high"] -= Math.max(1 - numberPercentProximity(data["cloudcover_mid"], 40) / 2, 0);
+                }
+
+              },
             });
 
             const calculator = new ForecastFactory(
