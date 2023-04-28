@@ -98,12 +98,6 @@ function HomeStackScreen() {
 }
 
 const App = () => {
-  useLayoutEffect(() => {
-    (async () => {
-      await SettingsManager.init();
-    })();
-  }, []);
-
   const isDark = useColorScheme() === 'dark';
 
   // TODO: Change to use my theme instead of default
