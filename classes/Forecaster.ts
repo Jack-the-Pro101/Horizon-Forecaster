@@ -67,7 +67,13 @@ function dynamicWeightAdjuster(
   }
 
   for (const value of values) {
-    adjustmentFunctions[value.type](adjustments, values);
+    if (adjustmentFunctions[value.type] == null) continue;
+
+    const simplifiedValues = {};
+    // @ts-expect-error
+    values.map(value => (simplifiedValues[value.type] = value.data));
+
+    adjustmentFunctions[value.type](adjustments, simplifiedValues);
   }
 
   for (const key in adjustments) {
@@ -174,20 +180,43 @@ class Forecaster {
               cloudcover_low: 87,
             };
 
+            // Note: not done
             dynamicWeightAdjuster(cloudCoverWeightMap, data, {
               cloudcover_high: (adjustments, data: any) => {
-                const totalCloudCover = data["cloudcover_low"] + data["cloudcover_mid"];
+                const totalCloudCover =
+                  data['cloudcover_low'][targetIndex] +
+                  data['cloudcover_mid'][targetIndex] +
+                  data['cloudcover_low'][targetIndex];
 
-                if (totalCloudCover > 110) {
-                  // TODO: adjust this
-                  adjustments["cloudcover_high"] -= Math.max(1 - numberPercentProximity(data["cloudcover_low"], 20), 0);
-                }else {
-                  adjustments["cloudcover_high"] -= Math.max(1 - numberPercentProximity(data["cloudcover_low"], 20) / 2, 0);
-                  adjustments["cloudcover_high"] -= Math.max(1 - numberPercentProximity(data["cloudcover_mid"], 40) / 2, 0);
+                if (totalCloudCover > 210) {
+                  adjustments['cloudcover_high'] -= Math.max(
+                    1 -
+                      numberPercentProximity(
+                        data['cloudcover_low'][targetIndex],
+                        20,
+                      ),
+                    0,
+                  );
+                } else {
+                  adjustments['cloudcover_high'] -= Math.max(
+                    numberPercentProximity(
+                      data['cloudcover_low'][targetIndex],
+                      20,
+                    ) / 2,
+                    0,
+                  );
+                  adjustments['cloudcover_high'] -= Math.max(
+                    numberPercentProximity(
+                      data['cloudcover_mid'][targetIndex],
+                      40,
+                    ) / 2,
+                    0,
+                  );
                 }
-
               },
             });
+
+            console.log(cloudCoverWeightMap);
 
             const calculator = new ForecastFactory(
               cloudCoverWeightMap,
