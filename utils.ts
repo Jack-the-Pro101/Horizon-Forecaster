@@ -1,3 +1,5 @@
+import {RawWeatherData, SunTime} from './types';
+
 export function binarySearch(
   array: any[],
   element: any,
@@ -59,4 +61,29 @@ export function uuidv4() {
       (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (c / 4)))
     ).toString(16),
   );
+}
+
+const MINS_TO_MS = 1000 * 60;
+export function getNearestSunEvent(
+  weatherData: RawWeatherData,
+): [SunTime, boolean] {
+  const currentDate = Date.now();
+
+  const offsetSunrise = weatherData.daily.sunrise[1] * 1000 + MINS_TO_MS * 15;
+  const offsetSunset = weatherData.daily.sunset[1] * 1000 + MINS_TO_MS * 15;
+
+  let shouldPredictTomorrow = false;
+  const type =
+    Math.abs(offsetSunrise - currentDate) < Math.abs(offsetSunset - currentDate)
+      ? currentDate > offsetSunrise
+        ? 'sunset'
+        : 'sunrise'
+      : currentDate > offsetSunset
+      ? ((): 'sunrise' => {
+          shouldPredictTomorrow = true;
+          return 'sunrise';
+        })()
+      : 'sunset';
+
+  return [type, shouldPredictTomorrow];
 }

@@ -184,17 +184,16 @@ class Forecaster {
             dynamicWeightAdjuster(cloudCoverWeightMap, data, {
               cloudcover_high: (adjustments, data: any) => {
                 const totalCloudCover =
-                  data['cloudcover_low'][targetIndex] +
+                  data['cloudcover_high'][targetIndex] +
                   data['cloudcover_mid'][targetIndex] +
                   data['cloudcover_low'][targetIndex];
 
                 if (totalCloudCover > 210) {
                   adjustments['cloudcover_high'] -= Math.max(
-                    1 -
-                      numberPercentProximity(
-                        data['cloudcover_low'][targetIndex],
-                        20,
-                      ),
+                    numberPercentProximity(
+                      data['cloudcover_low'][targetIndex],
+                      20,
+                    ),
                     0,
                   );
                 } else {

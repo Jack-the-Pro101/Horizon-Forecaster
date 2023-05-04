@@ -1,7 +1,10 @@
 import PushNotification from 'react-native-push-notification';
 import PushNotificationIOS from '@react-native-community/push-notification-ios';
+import BackgroundFetch from 'react-native-background-fetch';
 import {Platform} from 'react-native';
 import SettingsManager from '../Settings';
+import Forecaster from './Forecaster';
+import {getNearestSunEvent} from '../utils';
 
 class Notifier {
   constructor() {
@@ -58,6 +61,36 @@ class Notifier {
        */
       requestPermissions: Platform.OS === 'ios',
     });
+
+    BackgroundFetch.configure(
+      {
+        minimumFetchInterval: 30,
+      },
+      async taskId => {
+        const weatherData = await Forecaster.getForecast();
+
+        if (weatherData == null) return BackgroundFetch.finish(taskId);
+
+        const forecast = Forecaster.calculateQuality(weatherData, {
+          targetTime: weatherData.daily.sunset[1],
+        });
+
+        const sunEvent = getNearestSunEvent(weatherData);
+        const type = sunEvent[0];
+        const shouldPredictTomorrow = sunEvent[1];
+
+        if (
+          forecast >=
+          SettingsManager.settingsMap['notifications']['notify_thres']
+        ) {
+        }
+
+        BackgroundFetch.finish(taskId);
+      },
+      taskId => {
+        console.error('Failed to start background task: ' + taskId);
+      },
+    );
   }
 }
 

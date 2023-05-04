@@ -32,6 +32,7 @@ import {LocationContext} from '../../App';
 import {Drawer} from 'react-native-drawer-layout';
 
 import {BackHandler} from 'react-native';
+import {getNearestSunEvent} from '../../utils';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
@@ -39,8 +40,6 @@ interface LastRefresh {
   time: number;
   locationId: string | null;
 }
-
-const MINS_TO_MS = 1000 * 60;
 
 const timeFormatter = new Intl.DateTimeFormat(undefined, {
   hour: 'numeric',
@@ -52,6 +51,8 @@ const dateFormatter = new Intl.DateTimeFormat(undefined, {
   day: 'numeric',
   weekday: 'short',
 });
+
+const MINS_TO_MS = 1000 * 60;
 
 export default function Home({navigation, route}: Props) {
   const {location} = useContext(LocationContext);
@@ -84,24 +85,9 @@ export default function Home({navigation, route}: Props) {
 
       setWeatherData(data);
 
-      const currentDate = Date.now();
-
-      const offsetSunrise = data.daily.sunrise[1] * 1000 + MINS_TO_MS * 15;
-      const offsetSunset = data.daily.sunset[1] * 1000 + MINS_TO_MS * 15;
-
-      let shouldPredictTomorrow = false;
-      const type =
-        Math.abs(offsetSunrise - currentDate) <
-        Math.abs(offsetSunset - currentDate)
-          ? currentDate > offsetSunrise
-            ? 'sunset'
-            : 'sunrise'
-          : currentDate > offsetSunset
-          ? ((): 'sunrise' => {
-              shouldPredictTomorrow = true;
-              return 'sunrise';
-            })()
-          : 'sunset';
+      const sunEvent = getNearestSunEvent(data);
+      const type = sunEvent[0];
+      const shouldPredictTomorrow = sunEvent[1];
 
       // Math.abs(offsetSunrise - currentDate) <
       // Math.abs(offsetSunset - currentDate)
