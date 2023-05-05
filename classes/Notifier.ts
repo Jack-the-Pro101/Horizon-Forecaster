@@ -69,20 +69,33 @@ class Notifier {
       async taskId => {
         const weatherData = await Forecaster.getForecast();
 
-        if (weatherData == null) return BackgroundFetch.finish(taskId);
-
-        const forecast = Forecaster.calculateQuality(weatherData, {
-          targetTime: weatherData.daily.sunset[1],
-        });
+        if (
+          weatherData == null ||
+          !SettingsManager.settingsMap['notifications']['notify_all']
+        )
+          return BackgroundFetch.finish(taskId);
 
         const sunEvent = getNearestSunEvent(weatherData);
         const type = sunEvent[0];
         const shouldPredictTomorrow = sunEvent[1];
 
+        const forecast = Forecaster.calculateQuality(weatherData, {
+          targetTime:
+            weatherData.daily[type][1 + (shouldPredictTomorrow ? 1 : 0)],
+        });
+
         if (
           forecast >=
           SettingsManager.settingsMap['notifications']['notify_thres']
         ) {
+          PushNotification.localNotification({
+            title: `${
+              type.charAt(0).toUpperCase() + type.slice(1)
+            } quality exceeds ${
+              SettingsManager.settingsMap['notifications']['notify_thres'] * 100
+            }%`,
+            message: `Heads up: predicted ${type} quality meets notify threshold.`,
+          });
         }
 
         BackgroundFetch.finish(taskId);

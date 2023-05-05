@@ -64,6 +64,8 @@ export function uuidv4() {
 }
 
 const MINS_TO_MS = 1000 * 60;
+
+// Should probably return object but I'm lazy
 export function getNearestSunEvent(
   weatherData: RawWeatherData,
 ): [SunTime, boolean] {
