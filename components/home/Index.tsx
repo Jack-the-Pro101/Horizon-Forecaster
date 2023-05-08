@@ -164,20 +164,6 @@ export default function Home({navigation, route}: Props) {
     };
   }, [drawerOpen]);
 
-  // console.log(typeof forecast?.upcoming);
-
-  // forecast.upcoming.slice(2, 5).map(forecast => (
-  //   <View style={styles.forecasts__item}>
-  //     <Text style={styles.forecasts__title}>
-  //       {dateFormatter.format(forecast.date * 1000)}
-  //     </Text>
-  //     <Text style={styles.forecasts__result} fontWeight={600}>
-  //       {(forecast.quality * 100).toFixed(0)}%
-  //     </Text>
-  //     <Text style={styles.forecasts__time}>{forecast.type}</Text>
-  //   </View>
-  // ));
-
   return (
     <Drawer
       open={drawerOpen}

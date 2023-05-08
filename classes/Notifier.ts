@@ -12,6 +12,8 @@ class Notifier {
   }
 
   init() {
+    BackgroundFetch.stop();
+
     PushNotification.configure({
       // (optional) Called when Token is generated (iOS and Android)
       onRegister: function (token) {
@@ -65,6 +67,9 @@ class Notifier {
     BackgroundFetch.configure(
       {
         minimumFetchInterval: 30,
+        stopOnTerminate: false,
+        startOnBoot: true,
+        requiredNetworkType: BackgroundFetch.NETWORK_TYPE_ANY,
       },
       async taskId => {
         const weatherData = await Forecaster.getForecast();
@@ -89,12 +94,14 @@ class Notifier {
           SettingsManager.settingsMap['notifications']['notify_thres']
         ) {
           PushNotification.localNotification({
-            title: `${
-              type.charAt(0).toUpperCase() + type.slice(1)
-            } quality exceeds ${
-              SettingsManager.settingsMap['notifications']['notify_thres'] * 100
+            title: `${type.charAt(0).toUpperCase() + type.slice(1)} quality: ${
+              forecast * 100
             }%`,
-            message: `Heads up: predicted ${type} quality meets notify threshold.`,
+            message: `Heads up: predicted ${type} quality (${
+              forecast * 100
+            }%) meets notify threshold of ${
+              SettingsManager.settingsMap['notifications']['notify_thres'] * 100
+            }%.`,
           });
         }
 
@@ -102,6 +109,7 @@ class Notifier {
       },
       taskId => {
         console.error('Failed to start background task: ' + taskId);
+        BackgroundFetch.finish(taskId);
       },
     );
   }
