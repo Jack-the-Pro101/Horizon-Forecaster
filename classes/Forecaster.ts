@@ -180,40 +180,56 @@ class Forecaster {
               cloudcover_low: 87,
             };
 
-            // Note: not done
             dynamicWeightAdjuster(cloudCoverWeightMap, data, {
               cloudcover_high: (adjustments, data: any) => {
-                const totalCloudCover =
-                  data['cloudcover_high'][targetIndex] +
-                  data['cloudcover_mid'][targetIndex] +
-                  data['cloudcover_low'][targetIndex];
-
-                if (totalCloudCover > 210) {
-                  adjustments['cloudcover_high'] -= Math.max(
-                    numberPercentProximity(
-                      data['cloudcover_low'][targetIndex],
-                      20,
-                    ),
-                    0,
-                  );
-                } else {
-                  adjustments['cloudcover_high'] -= Math.max(
-                    numberPercentProximity(
-                      data['cloudcover_low'][targetIndex],
-                      20,
-                    ) / 2,
-                    0,
-                  );
-                  adjustments['cloudcover_high'] -= Math.max(
-                    numberPercentProximity(
-                      data['cloudcover_mid'][targetIndex],
-                      40,
-                    ) / 2,
-                    0,
-                  );
-                }
+                adjustments['cloudcover_high'] -= Math.max(
+                  numberPercentProximity(
+                    data['cloudcover_low'][targetIndex],
+                    20,
+                  ) / 2,
+                  0,
+                );
+                adjustments['cloudcover_high'] -= Math.max(
+                  numberPercentProximity(
+                    data['cloudcover_mid'][targetIndex],
+                    40,
+                  ) / 2,
+                  0,
+                );
               },
             });
+
+            const highCloudIndex = data.findIndex(
+              d => d.type === 'cloudcover_high',
+            );
+            const midCloudIndex = data.findIndex(
+              d => d.type === 'cloudcover_mid',
+            );
+            const lowCloudIndex = data.findIndex(
+              d => d.type === 'cloudcover_low',
+            );
+
+            const highCloudAvg =
+              (data[highCloudIndex].data[targetIndex] +
+                data[highCloudIndex].data[targetIndex + 1]) /
+              2;
+
+            const midCloudAvg =
+              (data[midCloudIndex].data[targetIndex] +
+                data[midCloudIndex].data[targetIndex + 1]) /
+              2;
+
+            const lowCloudAvg =
+              (data[lowCloudIndex].data[targetIndex] +
+                data[lowCloudIndex].data[targetIndex + 1]) /
+              2;
+
+            const totalCloudCover = highCloudAvg + midCloudAvg + lowCloudAvg;
+            const totalCloudCoverDistributions = {
+              high: highCloudAvg / totalCloudCover,
+              mid: midCloudAvg / totalCloudCover,
+              low: lowCloudAvg / totalCloudCover,
+            };
 
             console.log(cloudCoverWeightMap);
 
