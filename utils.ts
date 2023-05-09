@@ -66,6 +66,12 @@ export function uuidv4() {
 const MINS_TO_MS = 1000 * 60;
 
 // Should probably return object but I'm lazy
+
+// Math.abs(offsetSunrise - currentDate) <
+// Math.abs(offsetSunset - currentDate)
+//   ? 'sunrise'
+//   : 'sunset';
+
 export function getNearestSunEvent(
   weatherData: RawWeatherData,
 ): [SunTime, boolean] {

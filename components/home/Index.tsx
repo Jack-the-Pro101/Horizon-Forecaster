@@ -1,6 +1,7 @@
 import {useEffect, useState, useContext} from 'react';
 
 import {
+  Alert,
   SafeAreaView,
   ScrollView,
   StatusBar,
@@ -11,6 +12,9 @@ import {
   View,
   RefreshControl,
 } from 'react-native';
+
+import {Drawer} from 'react-native-drawer-layout';
+import NetInfo from '@react-native-community/netinfo';
 
 import Text from '../global/CustomText';
 
@@ -29,7 +33,6 @@ import {
 import Forecaster from '../../classes/Forecaster';
 import locationManager from '../../classes/LocationManager';
 import {LocationContext} from '../../App';
-import {Drawer} from 'react-native-drawer-layout';
 
 import {BackHandler} from 'react-native';
 import {getNearestSunEvent} from '../../utils';
@@ -68,12 +71,25 @@ export default function Home({navigation, route}: Props) {
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   useEffect(() => {
+    if (location == null) return;
+
     (async () => {
+      const network = await NetInfo.fetch();
+
       if (
-        lastRefresh.time + MINS_TO_MS > Date.now() &&
-        lastRefresh.locationId === locationManager.selectedLocationId
+        !network.isInternetReachable ||
+        (lastRefresh.time + MINS_TO_MS > Date.now() &&
+          lastRefresh.locationId === locationManager.selectedLocationId)
       ) {
         setRefreshing(false);
+
+        if (network.isInternetReachable === false) {
+          Alert.alert(
+            'No network connection',
+            'Cannot fetch weather data without network access. Please connect to the internet.',
+          );
+        }
+
         return;
       }
 
@@ -81,18 +97,22 @@ export default function Home({navigation, route}: Props) {
 
       const data = await Forecaster.getForecast();
 
-      if (data == null) return; // TODO: Handle properly
+      if (data == null) {
+        if (locationManager.selectedLocation == null)
+          Alert.alert(
+            'Failed to fetch weather',
+            'Weather data could not be fetched. Are you connected to the internet?',
+          );
+        setRefreshing(false);
+
+        return;
+      }
 
       setWeatherData(data);
 
       const sunEvent = getNearestSunEvent(data);
       const type = sunEvent[0];
       const shouldPredictTomorrow = sunEvent[1];
-
-      // Math.abs(offsetSunrise - currentDate) <
-      // Math.abs(offsetSunset - currentDate)
-      //   ? 'sunrise'
-      //   : 'sunset';
 
       const quality = Forecaster.calculateQuality(data, {
         targetTime: data.daily[type][1 + (shouldPredictTomorrow ? 1 : 0)],

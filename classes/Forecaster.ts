@@ -1,3 +1,4 @@
+import {Alert} from 'react-native';
 import {ForecastedData, RawWeatherData, WeatherDataOptions} from '../types';
 import {binarySearchRound} from '../utils';
 import DataFetcher from './DataFetcher';
@@ -225,12 +226,24 @@ class Forecaster {
               2;
 
             const totalCloudCover = highCloudAvg + midCloudAvg + lowCloudAvg;
+
             const totalCloudCoverDistributions = {
-              high: highCloudAvg / totalCloudCover,
-              mid: midCloudAvg / totalCloudCover,
-              low: lowCloudAvg / totalCloudCover,
+              high:
+                Math.round(
+                  (highCloudAvg === 0 ? 0 : highCloudAvg / totalCloudCover) *
+                    100,
+                ) / 100,
+              mid:
+                Math.round(
+                  (midCloudAvg === 0 ? 0 : midCloudAvg / totalCloudCover) * 100,
+                ) / 100,
+              low:
+                Math.round(
+                  (lowCloudAvg === 0 ? 0 : lowCloudAvg / totalCloudCover) * 100,
+                ) / 100,
             };
 
+            console.log(totalCloudCoverDistributions);
             console.log(cloudCoverWeightMap);
 
             const calculator = new ForecastFactory(
@@ -522,7 +535,11 @@ class Forecaster {
   async getForecast() {
     const location = locationManager.selectedLocation;
 
-    if (location == null) return; // TODO: handle properly
+    if (location == null)
+      return Alert.alert(
+        'No locations set',
+        'Location permissions were not granted and manual locations have not been set.',
+      );
 
     const data = await DataFetcher.getWeatherData({
       location: location,
