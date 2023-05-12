@@ -227,7 +227,9 @@ class Forecaster {
 
             const totalCloudCover = highCloudAvg + midCloudAvg + lowCloudAvg;
 
-            const totalCloudCoverDistributions = {
+            const totalCloudCoverDistributions: {
+              [key: string]: number;
+            } = {
               high:
                 Math.round(
                   (highCloudAvg === 0 ? 0 : highCloudAvg / totalCloudCover) *
@@ -242,6 +244,25 @@ class Forecaster {
                   (lowCloudAvg === 0 ? 0 : lowCloudAvg / totalCloudCover) * 100,
                 ) / 100,
             };
+
+            const cloudCoverPercentageConstants: WeightMap = {
+              cloudcover_mid: 15,
+              cloudcover_low: 10,
+            };
+
+            dynamicWeightAdjuster(
+              cloudCoverPercentageConstants,
+              Object.keys(totalCloudCoverDistributions).map(distribution => {
+                return {
+                  type: distribution,
+                  data: [totalCloudCoverDistributions[distribution]],
+                } as SortedWeightFunctionData;
+              }) as SortedWeightFunctionData[],
+              {
+                cloudcover_mid: (adjustments, data) => {},
+                cloudcover_low: (adjustments, data) => {},
+              },
+            );
 
             console.log(totalCloudCoverDistributions);
             console.log(cloudCoverWeightMap);
@@ -311,7 +332,10 @@ class Forecaster {
                     let accumWeight = 0;
 
                     for (const cloudcover of cloudcovers) {
-                      accumWeight += numberPercentProximity(cloudcover, 15);
+                      accumWeight += numberPercentProximity(
+                        cloudcover,
+                        cloudCoverPercentageConstants['cloudcover_mid'],
+                      );
                     }
 
                     accumWeight /= cloudcovers.length;
@@ -343,7 +367,10 @@ class Forecaster {
                     let accumWeight = 0;
 
                     for (const cloudcover of cloudcovers) {
-                      accumWeight += numberPercentProximity(cloudcover, 10);
+                      accumWeight += numberPercentProximity(
+                        cloudcover,
+                        cloudCoverPercentageConstants['cloudcover_low'],
+                      );
                     }
 
                     accumWeight /= cloudcovers.length;
