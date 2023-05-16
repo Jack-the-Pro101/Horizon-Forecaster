@@ -66,7 +66,7 @@ class Notifier {
 
     BackgroundFetch.configure(
       {
-        minimumFetchInterval: 30,
+        minimumFetchInterval: 15,
         stopOnTerminate: false,
         startOnBoot: true,
         requiredNetworkType: BackgroundFetch.NETWORK_TYPE_ANY,
@@ -91,7 +91,8 @@ class Notifier {
 
         if (
           forecast >=
-          SettingsManager.settingsMap['notifications']['notify_thres']
+          // SettingsManager.settingsMap['notifications']['notify_thres']
+          0
         ) {
           PushNotification.localNotification({
             title: `${type.charAt(0).toUpperCase() + type.slice(1)} quality: ${

@@ -183,20 +183,24 @@ class Forecaster {
 
             dynamicWeightAdjuster(cloudCoverWeightMap, data, {
               cloudcover_high: (adjustments, data: any) => {
-                adjustments['cloudcover_high'] -= Math.max(
+                (adjustments['cloudcover_high'] -=
                   numberPercentProximity(
                     data['cloudcover_low'][targetIndex],
-                    20,
-                  ) / 2,
-                  0,
-                );
-                adjustments['cloudcover_high'] -= Math.max(
+                    85,
+                  ) / 1.6),
+                  (adjustments['cloudcover_high'] -=
+                    numberPercentProximity(
+                      data['cloudcover_mid'][targetIndex],
+                      40,
+                    ) / 1.75);
+              },
+
+              cloudcover_mid: (adjustments, data) => {
+                adjustments['cloudcover_mid'] -=
                   numberPercentProximity(
-                    data['cloudcover_mid'][targetIndex],
-                    40,
-                  ) / 2,
-                  0,
-                );
+                    data['cloudcover_low'][targetIndex],
+                    85,
+                  ) / 1.7;
               },
             });
 
@@ -246,8 +250,8 @@ class Forecaster {
             };
 
             const cloudCoverPercentageConstants: WeightMap = {
-              cloudcover_mid: 15,
-              cloudcover_low: 10,
+              cloudcover_mid: 14,
+              cloudcover_low: 8,
             };
 
             dynamicWeightAdjuster(
@@ -259,12 +263,23 @@ class Forecaster {
                 } as SortedWeightFunctionData;
               }) as SortedWeightFunctionData[],
               {
-                cloudcover_mid: (adjustments, data) => {},
-                cloudcover_low: (adjustments, data) => {},
+                cloudcover_mid: (adjustments, data) => {
+                  adjustments['cloudcover_mid'] +=
+                    Math.max(-1 * data['cloudcover_high'] ** 1.42 + 350, 0) /
+                    100;
+                },
+                cloudcover_low: (adjustments, data) => {
+                  adjustments['cloudcover_low'] +=
+                    Math.max(-1 * data['cloudcover_high'] ** 1.6 + 100, 0) /
+                    100;
+
+                  adjustments['cloudcover_low'] +=
+                    Math.max(-1 * data['cloudcover_mid'] ** 1.6 + 200, 0) / 100;
+                },
               },
             );
 
-            console.log(totalCloudCoverDistributions);
+            // console.log(totalCloudCoverDistributions);
             console.log(cloudCoverWeightMap);
 
             const calculator = new ForecastFactory(
@@ -287,20 +302,17 @@ class Forecaster {
 
                     let accumWeight = 0;
 
+                    // Use parabolas, vertex form
                     function expoParabolaGenerator(input: number): number {
                       if (input > 85) {
-                        // Use parabola, vertex form
-
-                        return ((-1 * (input - 90)) ^ (2 + 100)) / 100;
+                        return Math.min(-1 * (input - 90) ** 2 + 100, 100);
                       } else {
-                        // Exponential function: f(x)
-
-                        return Math.min(1.053 ^ input, 100) / 100;
+                        return (-1 / 90) * (input - 94.86) ** 2 + 100;
                       }
                     }
 
                     for (const cloudcover of cloudcovers) {
-                      accumWeight += expoParabolaGenerator(cloudcover);
+                      accumWeight += expoParabolaGenerator(cloudcover) / 100;
                     }
 
                     accumWeight /= cloudcovers.length;
