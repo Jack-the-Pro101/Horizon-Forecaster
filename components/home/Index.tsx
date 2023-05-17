@@ -11,6 +11,7 @@ import {
   Text as TextNative,
   View,
   RefreshControl,
+  ImageBackground,
 } from 'react-native';
 
 import {Drawer} from 'react-native-drawer-layout';
@@ -278,7 +279,11 @@ export default function Home({navigation, route}: Props) {
               %
             </Text>
             <Text style={styles.forecast__subtext}>
-              {forecast?.current?.type || 'Loading'} quality
+              {forecast?.current
+                ? forecast.current.type.charAt(0).toUpperCase() +
+                  forecast.current.type.slice(1)
+                : 'Loading'}{' '}
+              quality
             </Text>
           </View>
         </View>
@@ -402,7 +407,10 @@ const styles = StyleSheet.create({
     paddingVertical: 128,
     paddingTop: 142,
     marginBottom: 0,
+    position: 'relative',
   },
+
+  hero__bg: {},
 
   forecast: {
     display: 'flex',
@@ -420,7 +428,6 @@ const styles = StyleSheet.create({
   forecast__subtext: {
     color: globalStyles.clrNeutral700,
     fontSize: 16,
-    textTransform: 'capitalize',
   },
 
   forecasts: {},
