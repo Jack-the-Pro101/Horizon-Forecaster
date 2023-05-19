@@ -12,5 +12,5 @@ AppRegistry.registerComponent(appName, () => App);
 
 (async () => {
   await SettingsManager.init();
-  Notifier;
+  Notifier.init();
 })();

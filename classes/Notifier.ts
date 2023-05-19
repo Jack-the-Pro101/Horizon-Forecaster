@@ -1,10 +1,12 @@
 import PushNotification from 'react-native-push-notification';
 import PushNotificationIOS from '@react-native-community/push-notification-ios';
 import BackgroundFetch from 'react-native-background-fetch';
-import {Platform} from 'react-native';
+import {Alert, Platform} from 'react-native';
 import SettingsManager from '../Settings';
 import Forecaster from './Forecaster';
 import {getNearestSunEvent} from '../utils';
+
+const notifyChannelId = 'horizon-forecaster';
 
 class Notifier {
   constructor() {
@@ -13,6 +15,14 @@ class Notifier {
 
   init() {
     BackgroundFetch.stop();
+
+    PushNotification.createChannel(
+      {
+        channelId: notifyChannelId,
+        channelName: 'Horizon Forecaster',
+      },
+      created => {},
+    );
 
     PushNotification.configure({
       // (optional) Called when Token is generated (iOS and Android)
@@ -95,6 +105,7 @@ class Notifier {
           0
         ) {
           PushNotification.localNotification({
+            channelId: notifyChannelId,
             title: `${type.charAt(0).toUpperCase() + type.slice(1)} quality: ${
               forecast * 100
             }%`,

@@ -279,9 +279,6 @@ class Forecaster {
               },
             );
 
-            // console.log(totalCloudCoverDistributions);
-            console.log(cloudCoverWeightMap);
-
             const calculator = new ForecastFactory(
               cloudCoverWeightMap,
               [

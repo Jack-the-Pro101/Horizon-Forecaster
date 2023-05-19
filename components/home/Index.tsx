@@ -37,6 +37,7 @@ import {LocationContext} from '../../App';
 
 import {BackHandler} from 'react-native';
 import {getNearestSunEvent} from '../../utils';
+import PushNotification from 'react-native-push-notification';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
