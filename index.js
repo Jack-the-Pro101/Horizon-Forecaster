@@ -8,9 +8,7 @@ import {name as appName} from './app.json';
 import SettingsManager from './Settings';
 import Notifier from './classes/Notifier';
 
-AppRegistry.registerComponent(appName, () => App);
+SettingsManager.init();
+Notifier.init();
 
-(async () => {
-  await SettingsManager.init();
-  Notifier.init();
-})();
+AppRegistry.registerComponent(appName, () => App);

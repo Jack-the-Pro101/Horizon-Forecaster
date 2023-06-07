@@ -6,19 +6,19 @@ import SettingsManager from '../Settings';
 import Forecaster from './Forecaster';
 import {getNearestSunEvent} from '../utils';
 
-const notifyChannelId = 'horizon-forecaster';
+const NOTIFY_CHANNEL_ID = 'horizon-forecaster';
 
 class Notifier {
   constructor() {
     if (SettingsManager.settingsMap['notifications']['notify_all']) this.init();
   }
 
-  init() {
+  async init() {
     BackgroundFetch.stop();
 
     PushNotification.createChannel(
       {
-        channelId: notifyChannelId,
+        channelId: NOTIFY_CHANNEL_ID,
         channelName: 'Horizon Forecaster',
       },
       created => {},
@@ -74,56 +74,74 @@ class Notifier {
       requestPermissions: Platform.OS === 'ios',
     });
 
-    BackgroundFetch.configure(
+    await BackgroundFetch.configure(
       {
+        enableHeadless: true,
         minimumFetchInterval: 15,
         stopOnTerminate: false,
         startOnBoot: true,
         requiredNetworkType: BackgroundFetch.NETWORK_TYPE_ANY,
       },
-      async taskId => {
-        const weatherData = await Forecaster.getForecast();
-
-        if (
-          weatherData == null ||
-          !SettingsManager.settingsMap['notifications']['notify_all']
-        )
-          return BackgroundFetch.finish(taskId);
-
-        const sunEvent = getNearestSunEvent(weatherData);
-        const type = sunEvent[0];
-        const shouldPredictTomorrow = sunEvent[1];
-
-        const forecast = Forecaster.calculateQuality(weatherData, {
-          targetTime:
-            weatherData.daily[type][1 + (shouldPredictTomorrow ? 1 : 0)],
-        });
-
-        if (
-          forecast >=
-          // SettingsManager.settingsMap['notifications']['notify_thres']
-          0
-        ) {
-          PushNotification.localNotification({
-            channelId: notifyChannelId,
-            title: `${type.charAt(0).toUpperCase() + type.slice(1)} quality: ${
-              forecast * 100
-            }%`,
-            message: `Heads up: predicted ${type} quality (${
-              forecast * 100
-            }%) meets notify threshold of ${
-              SettingsManager.settingsMap['notifications']['notify_thres'] * 100
-            }%.`,
-          });
-        }
-
-        BackgroundFetch.finish(taskId);
-      },
-      taskId => {
-        console.error('Failed to start background task: ' + taskId);
-        BackgroundFetch.finish(taskId);
-      },
+      event,
+      timeout,
     );
+
+    BackgroundFetch.registerHeadlessTask(event);
+
+    async function event(event: string | {taskId: string; timeout: boolean}) {
+      const isActive = typeof event;
+
+      // @ts-expect-error
+      const taskId = isActive === 'string' ? event : event.taskId;
+      // @ts-expect-error
+      const isTimeout = isActive === 'string' ? '' : event.timeout;
+
+      if (isTimeout) return timeout(taskId);
+
+      const weatherData = await Forecaster.getForecast();
+
+      if (
+        weatherData == null ||
+        !SettingsManager.settingsMap['notifications']['notify_all']
+      )
+        return BackgroundFetch.finish(taskId);
+
+      const sunEvent = getNearestSunEvent(weatherData);
+      const type = sunEvent[0];
+      const shouldPredictTomorrow = sunEvent[1];
+
+      const forecast = Forecaster.calculateQuality(weatherData, {
+        targetTime:
+          weatherData.daily[type][1 + (shouldPredictTomorrow ? 1 : 0)],
+      });
+
+      if (
+        forecast >=
+        // SettingsManager.settingsMap['notifications']['notify_thres']
+        0
+      ) {
+        PushNotification.localNotification({
+          channelId: NOTIFY_CHANNEL_ID,
+          title: `${type.charAt(0).toUpperCase() + type.slice(1)} quality: ${
+            forecast * 100
+          }%`,
+          message: `Heads up: predicted ${type} quality (${
+            forecast * 100
+          }%) meets notify threshold of ${
+            SettingsManager.settingsMap['notifications']['notify_thres'] * 100
+          }%.`,
+        });
+      }
+
+      BackgroundFetch.finish(taskId);
+    }
+
+    function timeout(taskId: string) {
+      console.error('Failed to start background task: ' + taskId);
+      BackgroundFetch.finish(taskId);
+    }
+
+    BackgroundFetch.start();
   }
 }
 
