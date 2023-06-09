@@ -74,7 +74,7 @@ class Notifier {
       requestPermissions: Platform.OS === 'ios',
     });
 
-    await BackgroundFetch.configure(
+    const status = await BackgroundFetch.configure(
       {
         enableHeadless: true,
         minimumFetchInterval: 15,

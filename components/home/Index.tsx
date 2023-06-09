@@ -37,7 +37,8 @@ import {LocationContext} from '../../App';
 
 import {BackHandler} from 'react-native';
 import {getNearestSunEvent} from '../../utils';
-import PushNotification from 'react-native-push-notification';
+
+import * as packageInfo from '../../package.json';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
@@ -214,7 +215,14 @@ export default function Home({navigation, route}: Props) {
                 style={stylesheet['drawer__icon-arrow']}
               />
             </TouchableOpacity>
-            <TouchableOpacity style={stylesheet.drawer__item}>
+            <TouchableOpacity
+              style={stylesheet.drawer__item}
+              onPress={() => {
+                Alert.alert(
+                  `Horizon - Forecaster`,
+                  `Version ${packageInfo.version}\n\nMade by Emperor of Bluegaria (Jack H.)`,
+                );
+              }}>
               <Ionicons
                 name="information-circle"
                 size={24}
