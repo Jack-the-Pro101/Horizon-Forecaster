@@ -37,14 +37,14 @@ export const settings: SettingsSection[] = [
     items: [
       {
         name: 'Receive notifications',
-        id: 'notif_all',
+        id: 'notify_all',
         description: 'This option toggles all notifications.',
         default: true,
         type: 'boolean',
       },
       {
         name: 'Notify Threshold',
-        id: 'notif_thres',
+        id: 'notify_thres',
         description: 'Notify if percentage matches or exceeds setting.',
         default: 0.5,
         type: 'number',

@@ -74,7 +74,7 @@ class Notifier {
       requestPermissions: Platform.OS === 'ios',
     });
 
-    const status = await BackgroundFetch.configure(
+    await BackgroundFetch.configure(
       {
         enableHeadless: true,
         minimumFetchInterval: 15,
@@ -102,7 +102,8 @@ class Notifier {
 
       if (
         weatherData == null ||
-        !SettingsManager.settingsMap['notifications']['notify_all']
+        !SettingsManager.settingsMap['notifications']['items']['notify_all']
+          .value
       )
         return BackgroundFetch.finish(taskId);
 
@@ -117,8 +118,8 @@ class Notifier {
 
       if (
         forecast >=
-        // SettingsManager.settingsMap['notifications']['notify_thres']
-        0
+        SettingsManager.settingsMap['notifications']['items']['notify_thres']
+          .value
       ) {
         PushNotification.localNotification({
           channelId: NOTIFY_CHANNEL_ID,
@@ -128,7 +129,9 @@ class Notifier {
           message: `Heads up: predicted ${type} quality (${
             forecast * 100
           }%) meets notify threshold of ${
-            SettingsManager.settingsMap['notifications']['notify_thres'] * 100
+            SettingsManager.settingsMap['notifications']['items'][
+              'notify_thres'
+            ].value * 100
           }%.`,
         });
       }
@@ -141,7 +144,7 @@ class Notifier {
       BackgroundFetch.finish(taskId);
     }
 
-    BackgroundFetch.start();
+    await BackgroundFetch.start();
   }
 }
 
