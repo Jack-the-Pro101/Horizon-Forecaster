@@ -107,6 +107,13 @@ android {
         }
     }
     signingConfigs {
+        release {
+            storeFile file('bluegaria.keystore')
+            storePassword System.console().readLine('\nKeystore password:')
+            keyAlias System.console().readLine('\nAlias: ')
+            keyPassword System.console().readLine('\nAlias password: ')
+        }
+
         debug {
             storeFile file('debug.keystore')
             storePassword 'android'
@@ -121,6 +128,8 @@ android {
         release {
             // Caution! In production, you need to generate your own keystore file.
             // see https://reactnative.dev/docs/signed-apk-android.
+            signingConfig signingConfigs.release
+
             signingConfig signingConfigs.debug
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
